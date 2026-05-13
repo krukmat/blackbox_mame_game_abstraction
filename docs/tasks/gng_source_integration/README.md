@@ -16,6 +16,20 @@ This directory contains the execution tasks for the `gng` source integration sta
 10. [T10 - Private Evidence to Public Abstract Spec Transformation](./T10-private-evidence-to-public-abstract-spec-transformation.md)
 11. [T11 - RN Prototype Hookup](./T11-rn-prototype-hookup.md)
 
+## Current T05 Artifacts
+
+- [T05.1 - Redaction Boundary Audit](./T05.1-redaction-boundary-audit.md) ✓
+- [T05.2 - Unified Redaction Policy Subtasks](./T05.2-unified-redaction-policy-subtasks.md) ✓
+- [T05.2.1 - Sensitive Surface Inventory Consolidation](./T05.2.1-sensitive-surface-inventory-consolidation.md) ✓
+- [T05.2.2 - Allowed Public Forms](./T05.2.2-allowed-public-forms.md) ✓
+- [T05.2.3 - Blocked Public Forms](./T05.2.3-blocked-public-forms.md) ✓
+- [T05.2.4 - Redaction Decision Table](./T05.2.4-redaction-decision-table.md) ✓
+- [T05.2.5 - Boundary Consistency Review Subtasks](./T05.2.5-boundary-consistency-review-subtasks.md) ✓
+- [T05.2.5 - Final Boundary Synthesis](./T05.2.5-final-boundary-synthesis.md) ✓
+- [T05.3 - Redaction Implementation Subtasks](./T05.3-redaction-implementation-subtasks.md) ✓
+- [T05.4 - Leakage Regression Tests](./T05.4-leakage-regression-tests.md) ✓
+- [T05.5 - Public Metadata Contract Documentation](./T05.5-public-metadata-contract-documentation.md) ✓
+
 ## Rule
 
 Do not start a task if any of its declared dependencies are still incomplete.

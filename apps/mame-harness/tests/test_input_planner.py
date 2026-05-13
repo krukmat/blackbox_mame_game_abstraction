@@ -4,11 +4,12 @@ from pathlib import Path
 
 import pytest
 
+from conftest import ROOT
 from input_planner import load_input_plan
 
 
 def test_load_input_plan() -> None:
-    plan = load_input_plan(Path("plans/basic_controls.yaml"))
+    plan = load_input_plan(ROOT / "plans/basic_controls.yaml")
     assert plan.plan_name == "basic_controls"
     assert plan.game_id == "sample_game"
     assert [step.action for step in plan.steps] == [

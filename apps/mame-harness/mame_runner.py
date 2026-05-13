@@ -6,10 +6,12 @@ import subprocess
 from typing import Sequence
 
 from guardrails import ensure_private_evidence_path
+from preflight import PreflightResult, run_preflight
+from source_profiles import SourceProfile
 
 
 @dataclass(slots=True)
-class MameRunResult:
+class MameExecution:
     command: list[str]
     returncode: int
     stdout: str
@@ -17,10 +19,19 @@ class MameRunResult:
 
 
 @dataclass(slots=True)
+class MameRunResult:
+    status: str
+    command: list[str]
+    preflight: PreflightResult | None = None
+    execution: MameExecution | None = None
+
+
+@dataclass(slots=True)
 class MameRunRequest:
     game_shortname: str
     mame_binary: str = "mame"
     working_dir: Path = Path(".")
+    source_profile: SourceProfile | None = None
     rom_path: Path | None = None
     cfg_dir: Path | None = None
     nvram_dir: Path | None = None
@@ -73,20 +84,54 @@ def build_mame_command(request: MameRunRequest) -> list[str]:
     return command
 
 
-def run_mame(request: MameRunRequest) -> MameRunResult | list[str]:
+def run_mame(request: MameRunRequest) -> MameRunResult:
     command = build_mame_command(request)
+    preflight = _run_request_preflight(request)
+    if preflight is not None and not preflight.ok:
+        return MameRunResult(
+            status="preflight_failure",
+            command=command,
+            preflight=preflight,
+        )
     if request.dry_run:
-        return command
+        return MameRunResult(
+            status="dry_run",
+            command=command,
+            preflight=preflight,
+        )
     completed = subprocess.run(
         command,
-        check=True,
+        check=False,
         text=True,
         capture_output=True,
         cwd=request.working_dir,
     )
-    return MameRunResult(
+    execution = MameExecution(
         command=command,
         returncode=completed.returncode,
         stdout=completed.stdout,
         stderr=completed.stderr,
+    )
+    if completed.returncode != 0:
+        return MameRunResult(
+            status="execution_failure",
+            command=command,
+            preflight=preflight,
+            execution=execution,
+        )
+    return MameRunResult(
+        status="success",
+        command=command,
+        preflight=preflight,
+        execution=execution,
+    )
+
+
+def _run_request_preflight(request: MameRunRequest) -> PreflightResult | None:
+    if request.source_profile is None:
+        return None
+    return run_preflight(
+        profile=request.source_profile,
+        mame_binary=request.mame_binary,
+        rom_path=request.rom_path,
     )

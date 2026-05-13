@@ -3,16 +3,23 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+import re
 from uuid import uuid4
 
 from capture_manager import create_capture_session
 from input_planner import load_input_plan
 from mame_runner import MameRunRequest, run_mame
 from metadata_writer import write_public_metadata
+from preflight import MAME_MINIMUM_VERSION, PreflightIssue
+from source_profiles import GNG_SOURCE_PROFILE
 from state_manager import RunState
 from vision_pipeline import analyze_run_frames
 from asset_recipe_generator import generate_asset_recipes
 from behavioral_validation import validate_behavior
+
+REPO_SAFE_COMMAND_PATHS = {
+    "scripts/mame_autoboot.lua",
+}
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -92,10 +99,12 @@ def handle_run(args: argparse.Namespace) -> dict[str, object]:
     run_id = uuid4().hex[:12]
     state = RunState(run_id=run_id)
     capture = create_capture_session(run_id)
+    source_profile = GNG_SOURCE_PROFILE if args.rom == GNG_SOURCE_PROFILE.profile_id else None
     request = MameRunRequest(
         game_shortname=args.rom,
         mame_binary=args.mame_binary,
         working_dir=args.working_dir,
+        source_profile=source_profile,
         rom_path=args.rom_path,
         input_dir=capture.logs_dir,
         state_dir=capture.root / "states",
@@ -106,8 +115,14 @@ def handle_run(args: argparse.Namespace) -> dict[str, object]:
         seconds_to_run=args.seconds_to_run,
         dry_run=args.dry_run,
     )
-    command_or_result = run_mame(request)
-    state.transition("command_built", note="dry-run command generated" if args.dry_run else "command executed")
+    run_result = run_mame(request)
+    state_note = {
+        "dry_run": "dry-run command generated",
+        "preflight_failure": "preflight validation failed",
+        "execution_failure": "command execution failed",
+        "success": "command executed",
+    }[run_result.status]
+    state.transition(run_result.status, note=state_note)
 
     metadata = {
         "run_id": run_id,
@@ -118,11 +133,26 @@ def handle_run(args: argparse.Namespace) -> dict[str, object]:
         "private_evidence_ref": f"private://{capture.run_id}",
         "state": state.phase,
         "notes": state.notes,
-        "command": _redact_command_paths(
-            command_or_result if isinstance(command_or_result, list) else command_or_result.command,
-            run_id=run_id,
-        ),
+        "runner_status": run_result.status,
+        "command": _redact_command_paths(run_result.command, run_id=run_id),
     }
+    if run_result.preflight is not None:
+        metadata["preflight"] = {
+            "ok": run_result.preflight.ok,
+            "profile_id": run_result.preflight.profile_id,
+            "driver": run_result.preflight.driver,
+            "detected_version": run_result.preflight.detected_version,
+            "issues": [
+                {"code": issue.code, "field": issue.field, "message": _sanitize_preflight_issue_message(issue)}
+                for issue in run_result.preflight.issues
+            ],
+        }
+    if run_result.execution is not None:
+        metadata["execution"] = {
+            "returncode": run_result.execution.returncode,
+            "stdout": _sanitize_execution_output(run_result.execution.stdout),  # T05.3.3
+            "stderr": _sanitize_execution_output(run_result.execution.stderr),  # T05.3.3
+        }
     write_public_metadata(Path("specs/run_metadata.json"), metadata)
     return metadata
 
@@ -134,9 +164,65 @@ def _redact_command_paths(command: list[str], run_id: str) -> list[str]:
         if "evidence/private/" in normalized:
             suffix = normalized.split(f"run_{run_id}/", maxsplit=1)[-1]
             redacted.append(f"private://{run_id}/{suffix}")
+        elif _is_repo_safe_command_reference(normalized):
+            redacted.append(normalized)
+        elif _looks_like_path(normalized):
+            redacted.append("<redacted:path>")
         else:
             redacted.append(part)
     return redacted
+
+
+def _is_repo_safe_command_reference(value: str) -> bool:
+    return value in REPO_SAFE_COMMAND_PATHS
+
+
+def _sanitize_preflight_issue_message(issue: PreflightIssue) -> str:
+    templates = {
+        "driver_contract_mismatch": issue.message,
+        "mame_binary_missing": "MAME binary was not found. Provide an installed executable or configured binary.",
+        "mame_version_probe_failed": "Failed to run the MAME version probe. Confirm the configured MAME binary is executable.",
+        "mame_version_unparseable": "Could not parse the MAME version output. Expected '0.<NNN>'.",
+        "mame_version_too_old": (
+            f"Configured MAME version is below the minimum supported version 0.{MAME_MINIMUM_VERSION}."
+        ),
+        "rom_path_missing": "ROM input is required. Provide the directory containing the expected ROM zip or the zip itself.",
+        "rom_zip_name_mismatch": "ROM input must resolve to the expected ROM zip name for the selected source profile.",
+        "rom_zip_missing": "Expected ROM zip was not found at the provided ROM input location.",
+    }
+    message = templates.get(issue.code, issue.message)
+    return _strip_path_like_segments(message)
+
+
+def _looks_like_path(value: str) -> bool:
+    if value.startswith("private://"):
+        return False
+    if value.startswith("/"):
+        return True
+    if len(value) >= 3 and value[1] == ":" and value[2] in ("\\", "/"):
+        return True
+    if "/" in value or "\\" in value:
+        return True
+    if value.startswith(".") and len(value) > 1:
+        return True
+    return False
+
+
+def _strip_path_like_segments(message: str) -> str:
+    sanitized = re.sub(r"[A-Za-z]:[\\/][^\s,;:]+", "<redacted:path>", message)
+    sanitized = re.sub(r"(?:\.\./|\./|/)[^\s,;:]+", "<redacted:path>", sanitized)
+    return sanitized
+
+
+def _sanitize_execution_output(text: str | None) -> str | None:
+    """T05.3.3 — sanitize free-form process output; remove all path-bearing segments."""
+    if text is None:
+        return None
+    # Windows absolute paths: C:\... or C:/...
+    sanitized = re.sub(r"[A-Za-z]:[\\/][^\s\]\)>\"']+", "<redacted:path>", text)
+    # Unix absolute paths and relative evidence/frame/crop paths
+    sanitized = re.sub(r"(?:evidence/private|/frames/|/crops/|(?<!\w)/)[^\s\]\)>\"']+", "<redacted:path>", sanitized)
+    return sanitized
 
 
 def handle_analyze(args: argparse.Namespace) -> dict[str, object]:

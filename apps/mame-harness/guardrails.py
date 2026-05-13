@@ -1,7 +1,13 @@
 from __future__ import annotations
 
+import re
 from pathlib import Path
 from typing import Any
+
+# T05.3.4 — patterns for absolute machine-local paths not caught by marker-based checks
+# Excludes private:// opaque handles (the approved replacement form for private evidence refs)
+_ABSOLUTE_UNIX_PATH_RE = re.compile(r"(?<!:)(?<!\w)/[A-Za-z0-9_\-./~]+")
+_ABSOLUTE_WINDOWS_PATH_RE = re.compile(r"[A-Za-z]:[\\/][A-Za-z0-9_\-./\\~ ]+")
 
 
 PRIVATE_EVIDENCE_ROOT = Path("evidence/private")
@@ -82,5 +88,13 @@ def ensure_no_private_paths(payload: Any) -> None:
 
     if isinstance(payload, str):
         normalized = payload.replace("\\", "/")
+        # marker-based check for known private path segments
         if any(marker in normalized for marker in BLOCKED_PUBLIC_PATH_MARKERS):
             raise ValueError(f"private path leaked into public payload: {payload}")
+        # T05.3.4 — last-gate: reject unsanitized absolute machine-local paths
+        # private:// opaque handles are the approved replacement form — skip them entirely
+        if not normalized.startswith("private://"):
+            if _ABSOLUTE_WINDOWS_PATH_RE.search(payload):
+                raise ValueError(f"absolute machine path leaked into public payload: {payload}")
+            if _ABSOLUTE_UNIX_PATH_RE.search(normalized):
+                raise ValueError(f"absolute machine path leaked into public payload: {payload}")
