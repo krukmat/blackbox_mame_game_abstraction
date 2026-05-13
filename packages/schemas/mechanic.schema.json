@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Mechanic",
+  "type": "object",
+  "required": ["mechanic_id", "summary", "state_transitions"],
+  "properties": {
+    "mechanic_id": { "type": "string" },
+    "summary": { "type": "string" },
+    "state_transitions": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "timing_notes": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "additionalProperties": false
+}

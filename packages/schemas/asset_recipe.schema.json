@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Asset Recipe",
+  "type": "object",
+  "required": [
+    "id",
+    "gameplay_role",
+    "size_class",
+    "approximate_canvas_size",
+    "animation_frame_count",
+    "motion_feel",
+    "readability_requirements",
+    "suggested_new_theme_variants",
+    "prohibited_similarity_rules",
+    "originality_guard"
+  ],
+  "properties": {
+    "id": { "type": "string" },
+    "gameplay_role": { "type": "string" },
+    "size_class": { "type": "string" },
+    "approximate_canvas_size": {
+      "type": "object",
+      "required": ["width", "height"],
+      "properties": {
+        "width": { "type": "integer", "minimum": 1 },
+        "height": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "animation_frame_count": { "type": "integer", "minimum": 1 },
+    "motion_feel": { "type": "string" },
+    "readability_requirements": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "suggested_new_theme_variants": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "prohibited_similarity_rules": {
+      "type": "array",
+      "minItems": 5,
+      "items": { "type": "string" }
+    },
+    "originality_guard": {
+      "type": "object",
+      "required": [
+        "perceptual_hash_comparison",
+        "silhouette_similarity_comparison",
+        "palette_similarity_comparison",
+        "human_review_required"
+      ],
+      "properties": {
+        "perceptual_hash_comparison": { "type": "string" },
+        "silhouette_similarity_comparison": { "type": "string" },
+        "palette_similarity_comparison": { "type": "string" },
+        "human_review_required": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

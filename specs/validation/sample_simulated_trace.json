@@ -1,0 +1,28 @@
+{
+  "trace": [
+    {
+      "frame": 0,
+      "entity_id": "player",
+      "entity_type": "player",
+      "x": 0.0,
+      "y": 0.0,
+      "velocity_x": 1.0,
+      "velocity_y": 0.0,
+      "state": "grounded",
+      "events": ["spawn"],
+      "score_delta": 0
+    },
+    {
+      "frame": 1,
+      "entity_id": "player",
+      "entity_type": "player",
+      "x": 1.0,
+      "y": 0.0,
+      "velocity_x": 1.0,
+      "velocity_y": 0.0,
+      "state": "grounded",
+      "events": [],
+      "score_delta": 0
+    }
+  ]
+}

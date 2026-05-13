@@ -1,0 +1,6 @@
+cases:
+  - case_id: attract_mode_to_start
+    goal: Verify the abstract start flow transitions into a playable state.
+    assertions:
+      - A start action transitions from idle to active play.
+      - No visual comparison to source frames is required.

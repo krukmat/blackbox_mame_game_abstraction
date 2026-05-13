@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Entity Candidate",
+  "type": "object",
+  "required": [
+    "candidate_id",
+    "bbox_stats",
+    "motion_stats",
+    "observed_frame_ranges",
+    "interaction_hints",
+    "animation_estimate"
+  ],
+  "properties": {
+    "candidate_id": { "type": "string" },
+    "bbox_stats": {
+      "type": "object",
+      "required": ["mean_width", "mean_height", "mean_center_x", "mean_center_y"],
+      "properties": {
+        "mean_width": { "type": "number" },
+        "mean_height": { "type": "number" },
+        "mean_center_x": { "type": "number" },
+        "mean_center_y": { "type": "number" }
+      },
+      "additionalProperties": false
+    },
+    "motion_stats": {
+      "type": "object",
+      "required": ["changed_pixel_ratio", "travel_frames"],
+      "properties": {
+        "changed_pixel_ratio": { "type": "number" },
+        "travel_frames": { "type": "number" }
+      },
+      "additionalProperties": false
+    },
+    "observed_frame_ranges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["start_frame", "end_frame"],
+        "properties": {
+          "start_frame": { "type": "integer", "minimum": 0 },
+          "end_frame": { "type": "integer", "minimum": 0 }
+        },
+        "additionalProperties": false
+      }
+    },
+    "interaction_hints": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "animation_estimate": {
+      "type": "object",
+      "required": ["frame_count"],
+      "properties": {
+        "frame_count": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,46 @@
+__pycache__/
+.pytest_cache/
+.venv/
+*.pyc
+node_modules/
+
+# Private clean-room evidence
+evidence/private/**
+!evidence/private/.gitkeep
+
+# ROMs and emulator artifacts
+*.zip
+*.7z
+*.rom
+*.bin
+*.nes
+*.sfc
+*.smc
+*.gba
+*.gb
+*.gbc
+*.gen
+*.cue
+*.iso
+*.chd
+*.state
+*.sta
+*.nv
+*.sav
+
+# Raw captures and video
+captures/**
+frames/**
+crops/**
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.webm
+*.wav
+*.flac
+
+# Generated private datasets
+*.npz
+*.npy
+*.parquet

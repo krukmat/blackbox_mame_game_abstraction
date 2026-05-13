@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Validation Case",
+  "type": "object",
+  "required": ["case_id", "goal", "assertions"],
+  "properties": {
+    "case_id": { "type": "string" },
+    "goal": { "type": "string" },
+    "assertions": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "additionalProperties": false
+}

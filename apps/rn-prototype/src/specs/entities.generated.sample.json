@@ -1,0 +1,16 @@
+{
+  "entities": [
+    {
+      "id": "player",
+      "kind": "player",
+      "role": "avatar",
+      "shape": "capsule"
+    },
+    {
+      "id": "enemy_patrol",
+      "kind": "enemy",
+      "role": "patroller",
+      "shape": "rectangle"
+    }
+  ]
+}

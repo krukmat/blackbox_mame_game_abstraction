@@ -1,0 +1,12 @@
+plan_name: basic_controls
+game_id: sample_game
+steps:
+  - action: insert_coin
+    frames: 30
+    notes: Start from attract mode.
+  - action: press_start
+    frames: 20
+  - action: move_left
+    frames: 40
+  - action: move_right
+    frames: 40

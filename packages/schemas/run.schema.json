@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Run Metadata",
+  "type": "object",
+  "required": ["run_id", "game_shortname", "input_plan", "dry_run", "private_evidence_ref", "command"],
+  "properties": {
+    "run_id": { "type": "string" },
+    "game_shortname": { "type": "string" },
+    "input_plan": { "type": "string" },
+    "frame_plan_length": { "type": "integer", "minimum": 0 },
+    "dry_run": { "type": "boolean" },
+    "private_evidence_ref": {
+      "type": "string",
+      "pattern": "^private://"
+    },
+    "state": { "type": "string" },
+    "notes": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "command": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "additionalProperties": false
+}

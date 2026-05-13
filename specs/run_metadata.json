@@ -1,0 +1,28 @@
+{
+  "run_id": "cfd97ceb2304",
+  "game_shortname": "pacman",
+  "input_plan": "basic_controls",
+  "frame_plan_length": 130,
+  "dry_run": true,
+  "private_evidence_ref": "private://cfd97ceb2304",
+  "state": "command_built",
+  "notes": [
+    "dry-run command generated"
+  ],
+  "command": [
+    "mame",
+    "pacman",
+    "-input_directory",
+    "private://cfd97ceb2304/logs",
+    "-state_directory",
+    "private://cfd97ceb2304/states",
+    "-snapshot_directory",
+    "private://cfd97ceb2304/frames",
+    "-aviwrite",
+    "private://cfd97ceb2304/video/capture.avi",
+    "-frames_to_run",
+    "300",
+    "-autoboot_script",
+    "scripts/mame_autoboot.lua"
+  ]
+}

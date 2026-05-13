@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Input Plan",
+  "type": "object",
+  "required": ["plan_name", "game_id", "steps"],
+  "properties": {
+    "plan_name": { "type": "string" },
+    "game_id": { "type": "string" },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["action", "frames"],
+        "properties": {
+          "action": { "type": "string" },
+          "frames": { "type": "integer", "minimum": 1 },
+          "notes": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

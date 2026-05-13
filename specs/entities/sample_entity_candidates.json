@@ -1,0 +1,30 @@
+{
+  "entity_candidates": [
+    {
+      "candidate_id": "candidate_001",
+      "bbox_stats": {
+        "mean_width": 12.0,
+        "mean_height": 14.0,
+        "mean_center_x": 18.0,
+        "mean_center_y": 24.0
+      },
+      "motion_stats": {
+        "changed_pixel_ratio": 0.1875,
+        "travel_frames": 3.0
+      },
+      "observed_frame_ranges": [
+        {
+          "start_frame": 12,
+          "end_frame": 15
+        }
+      ],
+      "interaction_hints": [
+        "movement_detected",
+        "likely_avatar_or_enemy"
+      ],
+      "animation_estimate": {
+        "frame_count": 3
+      }
+    }
+  ]
+}

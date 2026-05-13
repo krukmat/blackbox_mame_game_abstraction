@@ -1,0 +1,7 @@
+README.md
+pyproject.toml
+blackbox_mame_game_abstraction.egg-info/PKG-INFO
+blackbox_mame_game_abstraction.egg-info/SOURCES.txt
+blackbox_mame_game_abstraction.egg-info/dependency_links.txt
+blackbox_mame_game_abstraction.egg-info/requires.txt
+blackbox_mame_game_abstraction.egg-info/top_level.txt

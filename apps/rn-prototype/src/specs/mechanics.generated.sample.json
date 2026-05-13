@@ -1,0 +1,13 @@
+{
+  "mechanic_id": "sample_side_scroll",
+  "summary": "Grounded movement with single jump and contact hazard failures.",
+  "state_transitions": [
+    "idle -> moving",
+    "moving -> jumping",
+    "jumping -> grounded"
+  ],
+  "timing_notes": [
+    "Fixed simulation step is 16 ms.",
+    "Enemy patrol updates once per simulation step."
+  ]
+}

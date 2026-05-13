@@ -1,0 +1,7 @@
+cases:
+  - case_id: player_spawn_motion
+    goal: Verify that the independent implementation matches abstract spawn and movement timing.
+    assertions:
+      - Player enters the scene in a grounded state.
+      - Movement begins within the configured tolerance window.
+      - No visual, palette, or sprite comparison is used.

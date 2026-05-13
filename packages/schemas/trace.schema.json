@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Behavior Trace Entry",
+  "type": "object",
+  "required": [
+    "frame",
+    "entity_id",
+    "entity_type",
+    "x",
+    "y",
+    "velocity_x",
+    "velocity_y",
+    "state",
+    "events"
+  ],
+  "properties": {
+    "frame": { "type": "integer", "minimum": 0 },
+    "entity_id": { "type": "string" },
+    "entity_type": { "type": "string" },
+    "x": { "type": "number" },
+    "y": { "type": "number" },
+    "velocity_x": { "type": "number" },
+    "velocity_y": { "type": "number" },
+    "state": { "type": "string" },
+    "events": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "score_delta": { "type": "integer" }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,27 @@
+recipes:
+  - id: player_avatar
+    gameplay_role: moving_actor
+    size_class: medium
+    approximate_canvas_size:
+      width: 12
+      height: 14
+    animation_frame_count: 4
+    motion_feel: responsive_arcade_motion
+    readability_requirements:
+      - Preserve strong figure-ground contrast.
+      - Keep the locomotion pose readable at phone scale.
+    suggested_new_theme_variants:
+      - neon archaeology
+      - paper automata
+      - signal garden
+    prohibited_similarity_rules:
+      - do not reuse original palette
+      - do not copy original silhouette
+      - do not copy character identity
+      - do not use original crop as input
+      - do not copy animation frames
+    originality_guard:
+      perceptual_hash_comparison: required
+      silhouette_similarity_comparison: required
+      palette_similarity_comparison: required
+      human_review_required: true

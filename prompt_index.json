@@ -1,0 +1,26 @@
+{
+  "project": "blackbox_mame_game_abstraction",
+  "principle": "observable behavior -> abstract spec -> new assets -> new theme -> independent implementation",
+  "recommended_order": [
+    "00_codex_initial_scaffold.md",
+    "01_codex_mame_harness_phase1.md",
+    "02_claude_code_project_iteration.md",
+    "03_vision_layer_phase3.md",
+    "04_asset_factory_phase5.md",
+    "05_react_native_prototype_phase6.md",
+    "06_golden_master_validation_phase7.md"
+  ],
+  "root_instruction_files": [
+    "CLAUDE.md",
+    "AGENTS.md"
+  ],
+  "guardrails": [
+    "No ROMs",
+    "No original sprites",
+    "No original audio",
+    "No screenshots/videos committed",
+    "No save states committed",
+    "No image-to-image derivatives of original sprites",
+    "Only abstract specs and new original assets as public outputs"
+  ]
+}
