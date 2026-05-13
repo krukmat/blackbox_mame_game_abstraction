@@ -2,13 +2,13 @@
   "project": "blackbox_mame_game_abstraction",
   "principle": "observable behavior -> abstract spec -> new assets -> new theme -> independent implementation",
   "recommended_order": [
-    "00_codex_initial_scaffold.md",
-    "01_codex_mame_harness_phase1.md",
-    "02_claude_code_project_iteration.md",
-    "03_vision_layer_phase3.md",
-    "04_asset_factory_phase5.md",
-    "05_react_native_prototype_phase6.md",
-    "06_golden_master_validation_phase7.md"
+    "docs/tasks/implemented_phases/00_codex_initial_scaffold.md",
+    "docs/tasks/implemented_phases/01_codex_mame_harness_phase1.md",
+    "docs/tasks/implemented_phases/02_claude_code_project_iteration.md",
+    "docs/tasks/implemented_phases/03_vision_layer_phase3.md",
+    "docs/tasks/implemented_phases/04_asset_factory_phase5.md",
+    "docs/tasks/implemented_phases/05_react_native_prototype_phase6.md",
+    "docs/tasks/implemented_phases/06_golden_master_validation_phase7.md"
   ],
   "root_instruction_files": [
     "CLAUDE.md",

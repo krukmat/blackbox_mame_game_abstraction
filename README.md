@@ -86,6 +86,8 @@ packages/
   asset-factory/
   validation/
 docs/
+  plans/
+  tasks/
 plans/
 specs/
 evidence/private/
@@ -154,3 +156,5 @@ Read these files in this order:
 3. `docs/legal_guardrails.md`
 4. `docs/architecture.md`
 5. `docs/clean_room_process.md`
+6. `docs/plans/gng_source_integration_plan.md`
+7. `docs/tasks/gng_source_integration/README.md`
