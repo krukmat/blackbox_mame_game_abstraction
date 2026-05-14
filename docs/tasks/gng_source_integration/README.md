@@ -16,6 +16,12 @@ This directory contains the execution tasks for the `gng` source integration sta
 10. [T10 - Private Evidence to Public Abstract Spec Transformation](./T10-private-evidence-to-public-abstract-spec-transformation.md)
 11. [T11 - RN Prototype Hookup](./T11-rn-prototype-hookup.md)
 
+## Post-T11 Handoff
+
+After T11, product-like RN work should move to the T12 Original Game Definition phase rather than extending this source-integration task set. T12 is indexed at [../original_game_definition/README.md](../original_game_definition/README.md) and planned in [../../plans/original_game_definition_plan.md](../../plans/original_game_definition_plan.md).
+
+T12 defines the original game direction, encounter grammar, scene recipes, transformation rules, progression model, and originality validation using public abstract artifacts only.
+
 ## Current T05 Artifacts
 
 - [T05.1 - Redaction Boundary Audit](./T05.1-redaction-boundary-audit.md) ✓

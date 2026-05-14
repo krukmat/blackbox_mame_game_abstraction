@@ -1,0 +1,180 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GNG Abstract Mechanics",
+  "description": "JSON Schema for specs/mechanics/gng_abstract_mechanics.yaml. T09.4.",
+  "type": "object",
+  "required": ["schema_version", "game_profile", "calibration_status", "mechanics"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "type": "string" },
+    "game_profile":   { "type": "string" },
+    "calibration_status": { "type": "string", "enum": ["pending", "calibrated"] },
+    "mechanics": {
+      "type": "object",
+      "required": ["locomotion", "jump_arc", "projectile", "gravity_collision", "entity_event_trace"],
+      "additionalProperties": false,
+      "properties": {
+
+        "locomotion": {
+          "type": "object",
+          "required": ["description", "fields", "invariants", "example"],
+          "properties": {
+            "description": { "type": "string" },
+            "invariants":  { "type": "array", "items": { "type": "string" } },
+            "fields":      { "type": "object" },
+            "example": {
+              "type": "object",
+              "required": ["frame", "entity_id", "entity_type", "x", "y", "velocity_x", "velocity_y", "state", "events"],
+              "properties": {
+                "frame":       { "type": "integer", "minimum": 0 },
+                "entity_id":   { "type": "string" },
+                "entity_type": { "type": "string", "enum": ["player"] },
+                "x":           { "type": "number" },
+                "y":           { "type": "number" },
+                "velocity_x":  { "type": "number" },
+                "velocity_y":  { "type": "number" },
+                "state":       { "type": "string", "enum": ["idle", "walking_left", "walking_right"] },
+                "events":      { "type": "array", "items": { "type": "string", "enum": ["movement_start", "movement_stop"] } },
+                "score_delta": { "type": "integer" }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+
+        "jump_arc": {
+          "type": "object",
+          "required": ["description", "fields", "invariants", "example"],
+          "properties": {
+            "description": { "type": "string" },
+            "invariants":  { "type": "array", "items": { "type": "string" } },
+            "fields":      { "type": "object" },
+            "example": {
+              "type": "object",
+              "required": ["frame", "entity_id", "entity_type", "x", "y", "velocity_x", "velocity_y", "state", "events"],
+              "properties": {
+                "frame":       { "type": "integer", "minimum": 0 },
+                "entity_id":   { "type": "string" },
+                "entity_type": { "type": "string", "enum": ["player"] },
+                "x":           { "type": "number" },
+                "y":           { "type": "number" },
+                "velocity_x":  { "type": "number" },
+                "velocity_y":  { "type": "number" },
+                "state":       { "type": "string", "enum": ["grounded", "ascending", "descending"] },
+                "events":      { "type": "array", "items": { "type": "string", "enum": ["jump_start", "jump_peak", "land"] } },
+                "score_delta": { "type": "integer" }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+
+        "projectile": {
+          "type": "object",
+          "required": ["description", "fields", "invariants", "example"],
+          "properties": {
+            "description": { "type": "string" },
+            "invariants":  { "type": "array", "items": { "type": "string" } },
+            "fields":      { "type": "object" },
+            "example": {
+              "type": "object",
+              "required": ["frame", "entity_id", "entity_type", "x", "y", "velocity_x", "velocity_y", "state", "events"],
+              "properties": {
+                "frame":              { "type": "integer", "minimum": 0 },
+                "entity_id":          { "type": "string" },
+                "entity_type":        { "type": "string", "enum": ["projectile"] },
+                "x":                  { "type": "number" },
+                "y":                  { "type": "number" },
+                "velocity_x":         { "type": "number" },
+                "velocity_y":         { "type": "number" },
+                "state":              { "type": "string", "enum": ["in_flight", "despawned"] },
+                "events":             { "type": "array", "items": { "type": "string", "enum": ["fire", "hit_enemy", "hit_wall", "despawn"] } },
+                "spawn_delay_frames": { "type": "integer", "minimum": 0 },
+                "score_delta":        { "type": "integer" }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+
+        "gravity_collision": {
+          "type": "object",
+          "required": ["description", "fields", "invariants", "example"],
+          "properties": {
+            "description": { "type": "string" },
+            "invariants":  { "type": "array", "items": { "type": "string" } },
+            "fields":      { "type": "object" },
+            "example": {
+              "type": "object",
+              "required": ["frame", "entity_id", "entity_type", "x", "y", "velocity_x", "velocity_y", "state", "events"],
+              "properties": {
+                "frame":                  { "type": "integer", "minimum": 0 },
+                "entity_id":              { "type": "string" },
+                "entity_type":            { "type": "string" },
+                "x":                      { "type": "number" },
+                "y":                      { "type": "number" },
+                "velocity_x":             { "type": "number" },
+                "velocity_y":             { "type": "number" },
+                "state":                  { "type": "string", "enum": ["grounded", "airborne"] },
+                "events":                 { "type": "array", "items": { "type": "string", "enum": ["land", "fall"] } },
+                "gravity_units_per_frame": { "type": "number" },
+                "score_delta":            { "type": "integer" }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+
+        "entity_event_trace": {
+          "type": "object",
+          "required": ["description", "fields", "invariants", "example"],
+          "properties": {
+            "description": { "type": "string" },
+            "invariants":  { "type": "array", "items": { "type": "string" } },
+            "fields":      { "type": "object" },
+            "example": {
+              "type": "object",
+              "required": ["frame", "entity_id", "entity_type", "x", "y", "velocity_x", "velocity_y", "state", "events"],
+              "properties": {
+                "frame":       { "type": "integer", "minimum": 0 },
+                "entity_id":   { "type": "string" },
+                "entity_type": {
+                  "type": "string",
+                  "enum": ["player", "enemy_a", "enemy_b", "boss_a", "projectile", "hazard"]
+                },
+                "x":           { "type": "number" },
+                "y":           { "type": "number" },
+                "velocity_x":  { "type": "number" },
+                "velocity_y":  { "type": "number" },
+                "state": {
+                  "type": "string",
+                  "enum": [
+                    "idle", "walking_left", "walking_right",
+                    "grounded", "airborne", "ascending", "descending",
+                    "in_flight", "hit", "dead", "despawned"
+                  ]
+                },
+                "events": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "spawn", "die", "despawn",
+                      "hit", "hit_enemy", "hit_player",
+                      "movement_start", "movement_stop",
+                      "jump_start", "jump_peak", "land", "fall",
+                      "fire", "hit_wall", "score"
+                    ]
+                  }
+                },
+                "score_delta": { "type": "integer" }
+              },
+              "additionalProperties": false
+            }
+          }
+        }
+
+      }
+    }
+  }
+}

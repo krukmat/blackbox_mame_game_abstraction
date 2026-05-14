@@ -11,15 +11,16 @@ from input_planner import load_input_plan
 from mame_runner import MameRunRequest, run_mame
 from metadata_writer import write_public_metadata
 from preflight import MAME_MINIMUM_VERSION, PreflightIssue
-from source_profiles import GNG_SOURCE_PROFILE
+from source_profiles import get_source_profile
 from state_manager import RunState
-from vision_pipeline import analyze_run_frames
+from vision_pipeline import analyze_run_frames, extract_run_trace
 from asset_recipe_generator import generate_asset_recipes
 from behavioral_validation import validate_behavior
 
 REPO_SAFE_COMMAND_PATHS = {
     "scripts/mame_autoboot.lua",
 }
+MAME_INPUT_PLAN_ENV_VAR = "BLACKBOX_INPUT_PLAN_PATH"
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -37,6 +38,7 @@ def build_parser() -> argparse.ArgumentParser:
     run_parser.add_argument("--working-dir", type=Path, default=Path("."))
     run_parser.add_argument("--seconds-to-run", type=int)
     run_parser.add_argument("--frames-to-run", type=int)
+    run_parser.add_argument("--source-profile", default=None)
     run_parser.add_argument("--dry-run", action="store_true")
     run_parser.add_argument("--print-json", action="store_true")
 
@@ -46,6 +48,18 @@ def build_parser() -> argparse.ArgumentParser:
         "--output",
         type=Path,
         default=Path("specs/entities/entity_candidates.generated.json"),
+    )
+
+    trace_parser = subcommands.add_parser(
+        "extract-trace",
+        help="Extract a public abstract trace from private gameplay frames",
+    )
+    trace_parser.add_argument("--run-id", required=True)
+    trace_parser.add_argument("--input-plan", type=Path, required=True)
+    trace_parser.add_argument(
+        "--output",
+        type=Path,
+        default=Path("specs/traces/gng_trace.generated.json"),
     )
 
     subcommands.add_parser("infer-placeholder", help="Inference remains intentionally placeholder")
@@ -99,7 +113,8 @@ def handle_run(args: argparse.Namespace) -> dict[str, object]:
     run_id = uuid4().hex[:12]
     state = RunState(run_id=run_id)
     capture = create_capture_session(run_id)
-    source_profile = GNG_SOURCE_PROFILE if args.rom == GNG_SOURCE_PROFILE.profile_id else None
+    input_plan_json_path = plan.export_to_json(capture.logs_dir / "input_plan.json")
+    source_profile = get_source_profile(args.source_profile) if args.source_profile else None
     request = MameRunRequest(
         game_shortname=args.rom,
         mame_binary=args.mame_binary,
@@ -107,10 +122,11 @@ def handle_run(args: argparse.Namespace) -> dict[str, object]:
         source_profile=source_profile,
         rom_path=args.rom_path,
         input_dir=capture.logs_dir,
-        state_dir=capture.root / "states",
+        state_dir=capture.states_dir,  # T08.2.5
         snapshot_dir=capture.frames_dir,
         aviwrite_path=capture.video_dir / "capture.avi",
         autoboot_script=Path("scripts/mame_autoboot.lua"),
+        environment={MAME_INPUT_PLAN_ENV_VAR: str(input_plan_json_path.resolve())},
         frames_to_run=args.frames_to_run,
         seconds_to_run=args.seconds_to_run,
         dry_run=args.dry_run,
@@ -230,6 +246,15 @@ def handle_analyze(args: argparse.Namespace) -> dict[str, object]:
     return {"status": "analyzed", "output": str(output_path)}
 
 
+def handle_extract_trace(args: argparse.Namespace) -> dict[str, object]:
+    output_path = extract_run_trace(
+        run_id=args.run_id,
+        input_plan_path=args.input_plan,
+        output_path=args.output,
+    )
+    return {"status": "trace_extracted", "output": str(output_path)}
+
+
 def handle_asset_recipes(args: argparse.Namespace) -> dict[str, object]:
     output_path = generate_asset_recipes(args.entity_candidates, args.output)
     return {"status": "generated", "output": str(output_path)}
@@ -263,6 +288,8 @@ def main() -> int:
         result = handle_run(args)
     elif args.command == "analyze-placeholder":
         result = handle_analyze(args)
+    elif args.command == "extract-trace":
+        result = handle_extract_trace(args)
     elif args.command == "generate-asset-recipes-placeholder":
         result = handle_asset_recipes(args)
     elif args.command == "validate-placeholder":

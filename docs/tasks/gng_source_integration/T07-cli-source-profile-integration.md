@@ -2,7 +2,17 @@
 
 ## Status
 
-Planned
+✅ Done — 2026-05-13
+
+## Files and Lines Affected
+
+| File | Change |
+|------|--------|
+| `apps/mame-harness/cli.py:14` | Replaced `from source_profiles import GNG_SOURCE_PROFILE` with `get_source_profile` |
+| `apps/mame-harness/cli.py:41` | Added `run_parser.add_argument("--source-profile", default=None)` |
+| `apps/mame-harness/cli.py:103` | Replaced hardcoded if-branch with `get_source_profile(args.source_profile) if args.source_profile else None` |
+| `apps/mame-harness/tests/test_cli.py` | Added `_make_run_args` fixture and 5 new T07.2 tests |
+| `apps/mame-harness/README.md` | Added Quick start section with `--source-profile` examples |
 
 ## Purpose
 

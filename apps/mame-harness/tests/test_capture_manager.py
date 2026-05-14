@@ -17,6 +17,14 @@ def test_private_evidence_path_isolation(tmp_path: Path) -> None:
     assert session.metadata_dir.exists()
 
 
+def test_capture_session_has_states_dir(tmp_path: Path) -> None:
+    # T08.2.5 — states_dir must be pre-created so MAME can write save states
+    session = create_capture_session("run-002", evidence_root=tmp_path / "evidence" / "private")
+    assert hasattr(session, "states_dir")
+    assert session.states_dir.exists()
+    assert session.states_dir.as_posix().endswith("evidence/private/run_run-002/states")
+
+
 def test_private_evidence_rejects_tracked_directory() -> None:
     with pytest.raises(ValueError):
         ensure_private_evidence_path(Path("specs/public"))

@@ -85,6 +85,8 @@ Read the ADRs in `docs/adr/` before analyzing or implementing any feature that t
 | ADR-007 | Every asset recipe must embed five prohibited similarity rules and `human_review_required: true` | `packages/asset-factory/` |
 | ADR-008 | Behavioral validation uses abstract traces — never pixel or screenshot comparison | `packages/validation/` |
 | ADR-009 | Input plans are deterministic YAML sequences — same plan produces same per-frame output | `input_planner.py`, `plans/` |
+| ADR-010 | Public original game definition layer between abstract mechanics and RN product work | T12 game definition artifacts, RN product direction |
+| ADR-011 | Mechanics-to-scenario transformation and originality validation | T12 encounter grammar, scene recipes, validation gates |
 
 ### Known Gaps (verify before implementing)
 
@@ -106,7 +108,7 @@ These are documented open limitations. If your task touches one of these areas, 
 `docs/obsidian/` is an Obsidian vault with module notes, ADR summaries, and the GNG integration plan. Use these notes to load architectural context quickly before reading source code:
 
 - `00 - Project Overview.md` — pipeline, repo layout, current phase
-- Module notes: `Guardrails`, `MAME Runner`, `Vision Layer`, `Asset Factory`, `Behavioral Validation`, `Source Profile`, `Preflight`, `Input Plan`, `React Native Prototype`
+- Module notes: `Guardrails`, `MAME Runner`, `Vision Layer`, `Asset Factory`, `Behavioral Validation`, `Source Profile`, `Preflight`, `Input Plan`, `React Native Prototype`, `Public Original Game Definition Layer`
 - `GNG Integration Plan.md` — T01–T11 status table and exit criteria
 
 ## Analysis Protocol

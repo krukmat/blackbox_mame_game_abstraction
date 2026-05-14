@@ -18,6 +18,7 @@ class CaptureSession:
     video_dir: Path
     logs_dir: Path
     metadata_dir: Path
+    states_dir: Path  # T08.2.5 — pre-created so MAME can write save states
     public_metadata_dir: Path | None = None
 
 
@@ -31,7 +32,8 @@ def create_capture_session(
     video_dir = root / "video"
     logs_dir = root / "logs"
     metadata_dir = root / "metadata"
-    for directory in (frames_dir, video_dir, logs_dir, metadata_dir):
+    states_dir = root / "states"  # T08.2.5
+    for directory in (frames_dir, video_dir, logs_dir, metadata_dir, states_dir):
         directory.mkdir(parents=True, exist_ok=True)
 
     checked_public_dir = None
@@ -49,5 +51,6 @@ def create_capture_session(
         video_dir=video_dir,
         logs_dir=logs_dir,
         metadata_dir=metadata_dir,
+        states_dir=states_dir,
         public_metadata_dir=checked_public_dir,
     )

@@ -1,13 +1,19 @@
 from __future__ import annotations
 
+import math
+import os
 from dataclasses import dataclass
 from pathlib import Path
 import subprocess
-from typing import Sequence
+from typing import Mapping, Sequence
 
 from guardrails import ensure_private_evidence_path
 from preflight import PreflightResult, run_preflight
 from source_profiles import SourceProfile
+
+# T08.2.2 — MAME 0.287 removed -frames_to_run; only -seconds_to_run is exposed.
+# Conversion assumes 60fps. ceil() ensures we run at least the requested frames.
+MAME_FRAME_RATE = 60
 
 
 @dataclass(slots=True)
@@ -46,6 +52,7 @@ class MameRunRequest:
     seconds_to_run: int | None = None
     frames_to_run: int | None = None
     autoboot_script: Path | None = None
+    environment: Mapping[str, str] | None = None
     extra_args: Sequence[str] | None = None
     dry_run: bool = True
 
@@ -69,14 +76,18 @@ def build_mame_command(request: MameRunRequest) -> list[str]:
     _append_path_arg(command, "-snapshot_directory", request.snapshot_dir, enforce_private=True)
     _append_path_arg(command, "-record", request.record_input_file, enforce_private=True)
     _append_path_arg(command, "-playback", request.playback_input_file, enforce_private=True)
-    _append_path_arg(command, "-aviwrite", request.aviwrite_path, enforce_private=True)
+    # T08.2.5 — resolve to absolute so MAME doesn't nest -aviwrite under -snapshot_directory
+    aviwrite_abs = request.aviwrite_path.resolve() if request.aviwrite_path else None
+    _append_path_arg(command, "-aviwrite", aviwrite_abs, enforce_private=True)
     _append_path_arg(command, "-mngwrite", request.mngwrite_path, enforce_private=True)
     if request.state_name:
         command.extend(["-state", request.state_name])
     if request.seconds_to_run is not None:
         command.extend(["-seconds_to_run", str(request.seconds_to_run)])
     if request.frames_to_run is not None:
-        command.extend(["-frames_to_run", str(request.frames_to_run)])
+        # T08.2.2 — convert frames to seconds; ceil guarantees at least frames_to_run frames
+        seconds = math.ceil(request.frames_to_run / MAME_FRAME_RATE)
+        command.extend(["-seconds_to_run", str(seconds)])
     if request.autoboot_script:
         command.extend(["-autoboot_script", str(request.autoboot_script)])
     if request.extra_args:
@@ -105,6 +116,7 @@ def run_mame(request: MameRunRequest) -> MameRunResult:
         text=True,
         capture_output=True,
         cwd=request.working_dir,
+        env=_build_run_environment(request.environment),
     )
     execution = MameExecution(
         command=command,
@@ -135,3 +147,10 @@ def _run_request_preflight(request: MameRunRequest) -> PreflightResult | None:
         mame_binary=request.mame_binary,
         rom_path=request.rom_path,
     )
+
+
+def _build_run_environment(overrides: Mapping[str, str] | None) -> dict[str, str]:
+    environment = dict(os.environ)
+    if overrides:
+        environment.update(overrides)
+    return environment

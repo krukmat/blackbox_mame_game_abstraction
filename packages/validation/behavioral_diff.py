@@ -110,6 +110,15 @@ def write_validation_reports(
     return payload
 
 
+def write_trace_output(entries: list[TraceEntry], output_path: Path) -> Path:
+    payload = {"trace": [asdict(entry) for entry in entries]}
+    ensure_public_output_path(output_path)
+    ensure_no_private_paths(payload)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    return output_path
+
+
 def load_trace_entries(path: Path) -> list[TraceEntry]:
     payload = json.loads(path.read_text(encoding="utf-8"))
     return [TraceEntry(**entry) for entry in payload.get("trace", [])]

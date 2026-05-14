@@ -2,7 +2,26 @@
 
 ## Status
 
-Planned
+🔄 In Progress
+
+## Subtask Status
+
+| Subtask | Title | Status |
+|---------|-------|--------|
+| T08.1 | Dry-run Verification | ✅ Done — 2026-05-13 |
+| T08.2.1 | Pre-capture Environment Gate | ✅ Done — 2026-05-13 |
+| T08.2.2 | Single 300-frame MAME Execution | ✅ Done — 2026-05-13 |
+| T08.2.3 | Private Evidence Directory Layout Audit | ✅ Done — 2026-05-13 |
+| T08.2.4 | Public Metadata Clean-room Audit | ✅ Done — 2026-05-13 |
+| T08.2.5 | Capture Pipeline Fixes (aviwrite path + Lua API) | ✅ Done — 2026-05-13 |
+
+## Subtask Files
+
+- [T08.1-dry-run-verification.md](T08.1-dry-run-verification.md)
+- [T08.2.1-pre-capture-environment-gate.md](T08.2.1-pre-capture-environment-gate.md)
+- [T08.2.2-single-300-frame-mame-execution.md](T08.2.2-single-300-frame-mame-execution.md)
+- [T08.2.3-private-evidence-directory-layout-audit.md](T08.2.3-private-evidence-directory-layout-audit.md)
+- [T08.2.4-public-metadata-clean-room-audit.md](T08.2.4-public-metadata-clean-room-audit.md)
 
 ## Purpose
 

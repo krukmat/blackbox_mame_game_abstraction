@@ -17,6 +17,8 @@ ADRs record significant architectural and design decisions, including the contex
 | [ADR-007](./ADR-007-asset-recipe-originality-contract.md) | Asset Recipe Originality Contract | Accepted |
 | [ADR-008](./ADR-008-behavioral-validation-no-pixel-comparison.md) | Behavioral Validation Without Pixel Comparison | Accepted |
 | [ADR-009](./ADR-009-input-plan-determinism.md) | Input Plan Determinism and YAML Definition | Accepted |
+| [ADR-010](./ADR-010-public-original-game-definition-layer.md) | Public Original Game Definition Layer | Accepted |
+| [ADR-011](./ADR-011-mechanics-to-scenario-transformation-originality-validation.md) | Mechanics-to-Scenario Transformation and Originality Validation | Accepted |
 
 ## Format
 
@@ -43,4 +45,11 @@ ADR-004 (runner results)
 
 ADR-006 (vision)
   └── ADR-007 (asset recipes)
+
+ADR-010 (public original game definition)
+  └── ADR-011 (mechanics-to-scenario transformation)
+
+ADR-011 (scenario originality validation)
+  ├── ADR-007 (asset originality)
+  └── ADR-008 (trace validation)
 ```

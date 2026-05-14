@@ -8,6 +8,37 @@ The harness provides a simple typed CLI and guardrail-aware helpers for:
 - public metadata redaction
 - placeholder analysis, inference, asset, and validation commands
 
+## Quick start
+
+Activate the Python 3.11 virtualenv before running any command:
+
+```bash
+source apps/mame-harness/.venv/bin/activate
+```
+
+### Dry-run with GNG source profile (no ROM required)
+
+```bash
+python apps/mame-harness/cli.py run \
+  --rom gngb \
+  --source-profile gng \
+  --dry-run
+```
+
+### Real run with GNG source profile
+
+```bash
+python apps/mame-harness/cli.py run \
+  --rom gngb \
+  --source-profile gng \
+  --rom-path <path-to-roms> \
+  --frames-to-run 300
+```
+
+`<path-to-roms>` must be the private local directory containing `gng.zip`. This path is never committed.
+
+Without `--source-profile` the run is generic — no preflight validation and no profile-backed driver contract.
+
 ## Source profiles
 
 The canonical source profile definitions live in `apps/mame-harness/source_profiles.py`.

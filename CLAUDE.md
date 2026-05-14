@@ -86,6 +86,8 @@ The `docs/adr/` directory contains the authoritative record of significant archi
 | ADR-007 | Every asset recipe must embed five prohibited similarity rules and `human_review_required: true` | `packages/asset-factory/` |
 | ADR-008 | Behavioral validation uses abstract traces, never pixel or screenshot comparison | `packages/validation/` |
 | ADR-009 | Input plans are deterministic YAML — same plan produces same frame sequence | `input_planner.py`, `plans/` |
+| ADR-010 | Public original game definition layer between abstract mechanics and RN product work | T12 game definition artifacts, RN product direction |
+| ADR-011 | Mechanics-to-scenario transformation and originality validation | T12 encounter grammar, scene recipes, validation gates |
 
 ### Known Gaps (consult before implementing)
 
@@ -107,7 +109,7 @@ These are documented limitations in the current implementation. An agent working
 The `docs/obsidian/` directory is an Obsidian vault covering the full project. It contains:
 
 - `00 - Project Overview.md` — pipeline, layout, ADR index, current phase status
-- Module notes: `Guardrails`, `MAME Runner`, `Vision Layer`, `Asset Factory`, `Behavioral Validation`, `Source Profile`, `Preflight`, `Input Plan`, `React Native Prototype`
+- Module notes: `Guardrails`, `MAME Runner`, `Vision Layer`, `Asset Factory`, `Behavioral Validation`, `Source Profile`, `Preflight`, `Input Plan`, `React Native Prototype`, `Public Original Game Definition Layer`
 - ADR summary notes with wikilinks
 - `GNG Integration Plan.md` — T01–T11 task status table and next steps
 

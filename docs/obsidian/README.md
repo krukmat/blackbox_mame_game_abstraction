@@ -8,6 +8,8 @@ This directory is an Obsidian vault for the project. Open `docs/obsidian/` as a 
 - [[Visual Architecture]] — Five Mermaid diagrams: pipeline, layers, guardrails, data flow, task status.
 - [[Legal Guardrails]] — Hard rules, what is forbidden, what is allowed.
 - [[GNG Integration Plan]] — Active work: T01–T11 task status and next steps.
+- [[Public Original Game Definition Layer]] — T12 bridge from abstract mechanics to an original game direction.
+- [[Original Game Definition Phase]] — T12 task order and phase boundary.
 
 ## Architecture Notes
 
@@ -21,6 +23,7 @@ This directory is an Obsidian vault for the project. Open `docs/obsidian/` as a 
 - [[Asset Factory]] — Abstract recipes with originality contract.
 - [[Behavioral Validation]] — Trace comparison, no pixel matching.
 - [[React Native Prototype]] — Spec-driven TypeScript engine.
+- [[Public Original Game Definition Layer]] — Product direction, encounter grammar, scene recipes, and progression.
 
 ## ADR Summaries (Obsidian format)
 
@@ -33,6 +36,8 @@ This directory is an Obsidian vault for the project. Open `docs/obsidian/` as a 
 - [[ADR-007 Asset Recipe Originality Contract]]
 - [[ADR-008 Behavioral Validation No Pixels]]
 - [[ADR-009 Input Plan Determinism]]
+- [[ADR-010 Public Original Game Definition Layer]]
+- [[ADR-011 Mechanics-to-Scenario Transformation and Originality Validation]]
 
 ## Full ADRs
 

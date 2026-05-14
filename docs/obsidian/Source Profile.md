@@ -43,7 +43,7 @@ This is validated by [[Preflight]] before any real run. If the profile declares 
 ## CLI Usage
 
 ```bash
-python3.11 apps/mame-harness/cli.py run --rom gng --rom-path /path/to/roms --dry-run
+python apps/mame-harness/cli.py run --rom gng --rom-path /path/to/roms --dry-run
 ```
 
 The CLI detects `args.rom == "gng"` and injects `GNG_SOURCE_PROFILE` automatically.

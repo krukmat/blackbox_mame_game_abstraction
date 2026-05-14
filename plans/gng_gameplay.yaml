@@ -1,0 +1,41 @@
+# T10.1.2 — GNG gameplay input plan for gngb.
+# Boot timing calibrated from 30s observation run (2026-05-13):
+#   ~600 frames to attract mode ("PLEASE DEPOSIT COIN")
+#   ~60 frames for coin insert + title screen transition
+#   ~420 frames for title transition + stage 1 intro before Arthur is controllable
+# Covers all 5 mechanic categories from T09.2:
+#   locomotion (move_right), jump arc (jump), projectile (fire),
+#   gravity/collision (implicit in jump+move), entity events (noop observation).
+plan_name: gng_gameplay
+game_id: gngb
+steps:
+  - action: noop
+    frames: 650
+    notes: "Wait for attract mode — RAM/ROM check + boot takes ~600 frames (~10s at 60fps)."
+  - action: insert_coin
+    frames: 10
+    notes: "Insert coin once attract mode is showing PLEASE DEPOSIT COIN."
+  - action: noop
+    frames: 60
+    notes: "Wait for 1-player start prompt to appear."
+  - action: press_start
+    frames: 5
+    notes: "Start 1-player game."
+  - action: noop
+    frames: 420
+    notes: "Wait for title transition and stage 1 intro to complete before Arthur is controllable (~7s at 60fps)."
+  - action: move_right
+    frames: 60
+    notes: "Locomotion: walk right."
+  - action: jump
+    frames: 20
+    notes: "Jump arc: observe full jump trajectory."
+  - action: move_right
+    frames: 30
+    notes: "Locomotion: continue right after landing."
+  - action: fire
+    frames: 15
+    notes: "Projectile: throw lance."
+  - action: noop
+    frames: 20
+    notes: "Observe projectile travel and any entity event."

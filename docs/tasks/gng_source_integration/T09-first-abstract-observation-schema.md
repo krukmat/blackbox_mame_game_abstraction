@@ -2,7 +2,23 @@
 
 ## Status
 
-Planned
+🔄 In Progress
+
+## Subtask Status
+
+| Subtask | Title | Status |
+|---------|-------|--------|
+| T09.1 | Mechanics Inventory | ✅ Done — 2026-05-13 |
+| T09.2 | Schema Field Definitions | 🔲 Planned |
+| T09.3 | Clean-room Boundary Review | 🔲 Planned |
+| T09.4 | Schema File + Examples | 🔲 Planned |
+
+## Subtask Files
+
+- [T09.1-mechanics-inventory.md](T09.1-mechanics-inventory.md)
+- [T09.2-schema-field-definitions.md](T09.2-schema-field-definitions.md)
+- [T09.3-clean-room-boundary-review.md](T09.3-clean-room-boundary-review.md)
+- [T09.4-schema-file-and-examples.md](T09.4-schema-file-and-examples.md)
 
 ## Purpose
 

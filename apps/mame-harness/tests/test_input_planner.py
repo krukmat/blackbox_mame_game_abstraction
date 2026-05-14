@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
@@ -36,3 +37,16 @@ def test_load_input_plan_rejects_unknown_action(tmp_path: Path) -> None:
     )
     with pytest.raises(ValueError):
         load_input_plan(plan_path)
+
+
+def test_export_to_json_writes_flat_frame_button_array(tmp_path: Path) -> None:
+    plan = load_input_plan(ROOT / "plans/basic_controls.yaml")
+
+    output = plan.export_to_json(tmp_path / "private" / "input_plan.json")
+
+    payload = json.loads(output.read_text(encoding="utf-8"))
+    assert output.exists()
+    assert payload[0] == {"frame": 0, "buttons": ["coin"]}
+    assert payload[29] == {"frame": 29, "buttons": ["coin"]}
+    assert payload[30] == {"frame": 30, "buttons": ["start"]}
+    assert payload[-1] == {"frame": 129, "buttons": ["right"]}

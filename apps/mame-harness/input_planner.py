@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import json
 from pathlib import Path
 
 import yaml
@@ -54,6 +55,18 @@ class InputPlan:
                 )
                 frame_index += 1
         return expanded
+
+    def export_to_json(self, path: Path) -> Path:
+        payload = [
+            {
+                "frame": frame.frame_index,
+                "buttons": list(frame.active_buttons),
+            }
+            for frame in self.expand_to_frames()
+        ]
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        return path
 
 
 def _buttons_for_action(action: str) -> list[str]:

@@ -1,0 +1,266 @@
+# gng_abstract_mechanics.yaml
+# T09.4 — Abstract mechanics schema for GNG source integration.
+# All values are in abstract game units. No pixel coordinates, ROM addresses,
+# or copyright character names. Numeric timing values are calibration-pending (T10).
+#
+# Vocabulary canonical source: T09.2-schema-field-definitions.md
+# Clean-room audit: T09.3 — all 5 rules passed.
+
+schema_version: "1.0.0"
+game_profile: gngb
+calibration_status: pending  # real timing values populated in T10
+
+mechanics:
+
+  # ──────────────────────────────────────────────────────────────
+  # 1. Locomotion
+  # Player-controlled horizontal movement. No acceleration or inertia.
+  # ──────────────────────────────────────────────────────────────
+  locomotion:
+    description: >
+      Horizontal movement driven by directional input.
+      velocity_x is discrete: constant while input held, zero on release.
+      No acceleration ramp or inertia.
+    fields:
+      frame:              { type: integer, minimum: 0, required: true }
+      entity_id:          { type: string,  required: true }
+      entity_type:        { type: string,  enum: [player], required: true }
+      x:                  { type: number,  required: true, unit: abstract }
+      y:                  { type: number,  required: true, unit: abstract }
+      velocity_x:         { type: number,  required: true, unit: abstract, calibration: pending }
+      velocity_y:         { type: number,  required: true, default: 0.0 }
+      state:
+        type: string
+        required: true
+        enum: [idle, walking_left, walking_right]
+      events:
+        type: array
+        required: true
+        items: { type: string, enum: [movement_start, movement_stop] }
+      score_delta:        { type: integer, required: false, default: 0 }
+    invariants:
+      - "velocity_x == 0.0 iff state == idle"
+      - "velocity_x < 0.0 iff state == walking_left"
+      - "velocity_x > 0.0 iff state == walking_right"
+    example:
+      frame: 42
+      entity_id: player
+      entity_type: player
+      x: 48.0
+      y: 180.0
+      velocity_x: 2.0        # calibration-pending: measured in T10
+      velocity_y: 0.0
+      state: walking_right
+      events: [movement_start]
+      score_delta: 0
+
+  # ──────────────────────────────────────────────────────────────
+  # 2. Jump arc
+  # Deterministic vertical trajectory. No mid-air cancellation.
+  # ──────────────────────────────────────────────────────────────
+  jump_arc:
+    description: >
+      Fixed initial Y velocity, constant gravity, fixed duration.
+      Jump cannot be cancelled once initiated.
+      velocity_y: negative = ascending, positive = descending, 0 = peak or grounded.
+    fields:
+      frame:              { type: integer, minimum: 0, required: true }
+      entity_id:          { type: string,  required: true }
+      entity_type:        { type: string,  enum: [player], required: true }
+      x:                  { type: number,  required: true, unit: abstract }
+      y:                  { type: number,  required: true, unit: abstract }
+      velocity_x:         { type: number,  required: true, unit: abstract }
+      velocity_y:         { type: number,  required: true, unit: abstract, calibration: pending }
+      state:
+        type: string
+        required: true
+        enum: [grounded, ascending, descending]
+      events:
+        type: array
+        required: true
+        items: { type: string, enum: [jump_start, jump_peak, land] }
+      score_delta:        { type: integer, required: false, default: 0 }
+    invariants:
+      - "state == grounded  → velocity_y == 0.0"
+      - "state == ascending  → velocity_y < 0.0"
+      - "state == descending → velocity_y > 0.0"
+      - "at most one of [jump_start, jump_peak, land] per frame"
+    example:
+      frame: 55
+      entity_id: player
+      entity_type: player
+      x: 64.0
+      y: 160.0
+      velocity_x: 2.0
+      velocity_y: -4.0       # calibration-pending: measured in T10
+      state: ascending
+      events: [jump_start]
+      score_delta: 0
+
+  # ──────────────────────────────────────────────────────────────
+  # 3. Projectile timing
+  # Fixed-velocity projectile. Max one active per player at a time.
+  # ──────────────────────────────────────────────────────────────
+  projectile:
+    description: >
+      Fixed horizontal velocity. Spawned after a fixed delay from fire input.
+      At most one active projectile per player at any frame.
+      entity_id uses role label (projectile_0), never a copyright weapon name.
+    fields:
+      frame:              { type: integer, minimum: 0, required: true }
+      entity_id:          { type: string,  required: true, note: "use projectile_0, projectile_1, etc." }
+      entity_type:        { type: string,  enum: [projectile], required: true }
+      x:                  { type: number,  required: true, unit: abstract }
+      y:                  { type: number,  required: true, unit: abstract }
+      velocity_x:         { type: number,  required: true, unit: abstract, calibration: pending }
+      velocity_y:         { type: number,  required: true, default: 0.0 }
+      state:
+        type: string
+        required: true
+        enum: [in_flight, despawned]
+      events:
+        type: array
+        required: true
+        items: { type: string, enum: [fire, hit_enemy, hit_wall, despawn] }
+      spawn_delay_frames:
+        type: integer
+        minimum: 0
+        required: false
+        note: "populated only on the frame where fire event appears; calibration-pending"
+      score_delta:        { type: integer, required: false, default: 0 }
+    invariants:
+      - "fire event appears only on the first frame of the entity's existence"
+      - "despawn co-occurs with hit_enemy, hit_wall, or off-screen exit"
+      - "spawn_delay_frames is non-null only when fire is in events"
+    example:
+      frame: 70
+      entity_id: projectile_0
+      entity_type: projectile
+      x: 80.0
+      y: 175.0
+      velocity_x: 4.0        # calibration-pending: measured in T10
+      velocity_y: 0.0
+      state: in_flight
+      events: [fire]
+      spawn_delay_frames: 3  # calibration-pending: measured in T10
+      score_delta: 0
+
+  # ──────────────────────────────────────────────────────────────
+  # 4. Gravity and collision state
+  # Per-frame gravity application and ground collision detection.
+  # ──────────────────────────────────────────────────────────────
+  gravity_collision:
+    description: >
+      Constant Y acceleration applied each airborne frame.
+      Ground collision sets state to grounded and velocity_y to 0.
+      gravity_units_per_frame is a behavioral constant calibrated in T10.
+    fields:
+      frame:              { type: integer, minimum: 0, required: true }
+      entity_id:          { type: string,  required: true }
+      entity_type:        { type: string,  required: true }
+      x:                  { type: number,  required: true, unit: abstract }
+      y:                  { type: number,  required: true, unit: abstract }
+      velocity_x:         { type: number,  required: true, unit: abstract }
+      velocity_y:         { type: number,  required: true, unit: abstract }
+      state:
+        type: string
+        required: true
+        enum: [grounded, airborne]
+      events:
+        type: array
+        required: true
+        items: { type: string, enum: [land, fall] }
+      gravity_units_per_frame:
+        type: number
+        required: false
+        note: "positive constant added to velocity_y each airborne frame; calibration-pending T10"
+      score_delta:        { type: integer, required: false, default: 0 }
+    invariants:
+      - "state == grounded → velocity_y == 0.0"
+      - "land and fall are mutually exclusive on any single frame"
+    example:
+      frame: 60
+      entity_id: player
+      entity_type: player
+      x: 64.0
+      y: 180.0
+      velocity_x: 0.0
+      velocity_y: 0.0
+      state: grounded
+      events: [land]
+      gravity_units_per_frame: 0.5   # calibration-pending: measured in T10
+      score_delta: 0
+
+  # ──────────────────────────────────────────────────────────────
+  # 5. Entity event trace
+  # Per-frame lifecycle event log for any entity type.
+  # Full extension of trace.schema.json with canonical vocabularies.
+  # ──────────────────────────────────────────────────────────────
+  entity_event_trace:
+    description: >
+      Per-frame event log for any active entity. Extends trace.schema.json base contract.
+      State and event strings are canonical — T10 and T11 must use these exact values
+      to avoid ADR-008 naming-drift false mismatches.
+    fields:
+      frame:              { type: integer, minimum: 0, required: true }
+      entity_id:          { type: string,  required: true, note: "role labels only: player, enemy_a, enemy_b, boss_a, projectile_0, …" }
+      entity_type:
+        type: string
+        required: true
+        enum: [player, enemy_a, enemy_b, boss_a, projectile, hazard]
+      x:                  { type: number,  required: true, unit: abstract }
+      y:                  { type: number,  required: true, unit: abstract }
+      velocity_x:         { type: number,  required: true, unit: abstract }
+      velocity_y:         { type: number,  required: true, unit: abstract }
+      state:
+        type: string
+        required: true
+        enum:
+          - idle
+          - walking_left
+          - walking_right
+          - grounded
+          - airborne
+          - ascending
+          - descending
+          - in_flight
+          - hit
+          - dead
+          - despawned
+      events:
+        type: array
+        required: true
+        items:
+          type: string
+          enum:
+            - spawn
+            - die
+            - despawn
+            - hit
+            - hit_enemy
+            - hit_player
+            - movement_start
+            - movement_stop
+            - jump_start
+            - jump_peak
+            - land
+            - fall
+            - fire
+            - hit_wall
+            - score
+      score_delta:        { type: integer, required: false, default: 0 }
+    invariants:
+      - "new states or events must be added to the enum before use in any trace record"
+      - "entity_id must not contain a copyright-protected proper noun"
+      - "score event co-occurs with non-zero score_delta"
+    example:
+      frame: 85
+      entity_id: enemy_a
+      entity_type: enemy_a
+      x: 200.0
+      y: 180.0
+      velocity_x: -1.0
+      velocity_y: 0.0
+      state: dead
+      events: [hit, die]
+      score_delta: 100
