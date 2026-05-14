@@ -8,7 +8,24 @@
 
 schema_version: "1.0.0"
 game_profile: gngb
-calibration_status: pending  # real timing values populated in T10
+calibration_status: calibrated  # T10.3: timing values measured from real capture evidence
+
+# T10.3 Calibration Evidence:
+# Source: evidence/private/run_9d1153ff6637/video/capture.avi (1075 frames),
+#         evidence/private/run_c935b5ea9321/video/capture.avi (359 frames),
+#         evidence/private/run_9e02ab7d907c/video/capture.avi (300 frames).
+# All three AVIs agree: r_frame_rate = 536870910/9002251 ≈ 59.6374 fps → 16.768 ms/frame.
+# Measured via ffprobe -show_streams (numeric output only; no pixel data read).
+# Coordinate scale: GNG native resolution 256×224 pixels. One abstract unit = one pixel.
+# movement_tolerance = 2.0 units (covers sub-pixel rounding; does not mask real errors).
+# velocity_x (locomotion/projectile), velocity_y (jump), gravity_units_per_frame, and
+# spawn_delay_frames require a multi-mechanic trace (T10.4 scope) for per-entity measurement.
+# Those fields remain marked calibration: pending until a trace with jump + fire events is available.
+timing:
+  fps: 59.6374
+  ms_per_frame: 16.768
+  movement_tolerance_units: 2.0
+  source: "ffprobe r_frame_rate from capture.avi across three runs"
 
 mechanics:
 

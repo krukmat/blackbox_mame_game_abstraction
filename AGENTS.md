@@ -87,6 +87,7 @@ Read the ADRs in `docs/adr/` before analyzing or implementing any feature that t
 | ADR-009 | Input plans are deterministic YAML sequences — same plan produces same per-frame output | `input_planner.py`, `plans/` |
 | ADR-010 | Public original game definition layer between abstract mechanics and RN product work | T12 game definition artifacts, RN product direction |
 | ADR-011 | Mechanics-to-scenario transformation and originality validation | T12 encounter grammar, scene recipes, validation gates |
+| ADR-012 | Entity signature-based player identification; multi-region FrameDiffer; ArthurTracker | `packages/vision/frame_differ.py`, `packages/vision/arthur_tracker.py`, `packages/vision/trace_extractor.py` |
 
 ### Known Gaps (verify before implementing)
 
@@ -98,6 +99,7 @@ These are documented open limitations. If your task touches one of these areas, 
 - **ADR-004 / status type**: `MameRunResult.status` is a plain `str`. Typos are not caught at definition time.
 - **ADR-005 / driver contract**: Preflight has a hardcoded `if profile.profile_id == "gng"` branch. Adding a second game requires a new branch, not a generic contract.
 - **ADR-006 / vision stub**: The vision pipeline is a placeholder. Entity candidates are synthetic. Real pixel analysis is deferred to a later phase.
+- **ADR-012 / multi-region + ArthurTracker**: Multi-region FrameDiffer and ArthurTracker are not yet implemented (T10.5 in progress). Until T10.5-E is complete, `extract_trace` produces one `TraceEntry` per frame aggregate, not one per entity. T10.5-C.3/C.4 (per-entity state isolation and spawn/die rewrite) are the highest-risk steps — reason carefully before touching `prev_state_by_entity` or `prev_seen_by_id`.
 - **ADR-006 / PGM format**: Only P2 ASCII PGM is supported. P5 binary PGM is not. MAME snapshot compatibility needs verification.
 - **ADR-007 / theme variants**: `suggested_new_theme_variants` are the same three strings for every entity. Should be varied or mechanics-derived.
 - **ADR-008 / movement tolerance**: Default tolerance (1.0 unit) is a placeholder. Correct value requires real captured evidence to calibrate.

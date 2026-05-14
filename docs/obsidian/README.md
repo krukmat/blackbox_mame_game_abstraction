@@ -38,6 +38,7 @@ This directory is an Obsidian vault for the project. Open `docs/obsidian/` as a 
 - [[ADR-009 Input Plan Determinism]]
 - [[ADR-010 Public Original Game Definition Layer]]
 - [[ADR-011 Mechanics-to-Scenario Transformation and Originality Validation]]
+- [[ADR-012 Entity Signature-Based Player Identification]]
 
 ## Full ADRs
 

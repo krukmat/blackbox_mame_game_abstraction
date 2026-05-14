@@ -45,6 +45,92 @@ Do not use:
 original sprite -> modified sprite -> reused asset
 ```
 
+## Manual Gameplay Recording
+
+The user plays GNG while MAME records an AVI. The agent handles the full boot sequence automatically (coin + start + intro wait). The user only needs to play.
+
+### Hardware / paths — never ask the user for these
+
+| Item | Value |
+|------|-------|
+| MAME binary | `/opt/homebrew/bin/mame` |
+| ROM path | `/Users/matiasleandrokruk/Documents/gng/local/roms` |
+| Driver | `gngb` |
+| Boot plan | `plans/gng_boot_only.yaml` |
+| Lua script | `scripts/mame_autoboot.lua` |
+
+### Boot timing (calibrated from run_e18611b8a7e7)
+
+| Frame range | What happens |
+|-------------|--------------|
+| 0 – 949 | RAM/ROM check + attract mode (no input) |
+| 950 – 959 | `insert_coin` injected by Lua |
+| 960 – 1019 | Wait for 1P start prompt |
+| 1020 – 1024 | `press_start` injected by Lua |
+| 1025 – 1504 | Title transition + stage 1 intro |
+| **1505+** | **Arthur controllable — user plays** |
+
+### Step 1 — Agent runs this (blocks until user closes MAME)
+
+```bash
+./scripts/launch_manual_capture_autoboot.sh [run_id]
+# default run_id: manual_01
+```
+
+This script:
+1. Exports `plans/gng_boot_only.yaml` → `evidence/private/run_<id>/logs/input_plan.json`
+2. Launches MAME with `-autoboot_script scripts/mame_autoboot.lua`
+3. Lua injects coin + start at the correct frames
+4. After frame 1505, noop frames → user's keyboard takes over naturally
+5. MAME records everything to `evidence/private/run_<id>/video/capture.avi`
+6. Script blocks until user closes MAME window
+
+Tell the user: *"MAME is launching. The boot sequence runs automatically (~25 seconds). Controls once Arthur appears: ← → move, Left Alt jump, Left Ctrl fire. Close the window when you finish the level."*
+
+### Step 2 — When step 1 returns, agent runs this immediately
+
+```bash
+./scripts/extract_frames.sh [run_id]
+```
+
+This script:
+1. Runs `ffmpeg` to extract PNG frames from the AVI into `frames/extracted_png/`
+2. Regenerates `specs/traces/gng_trace.json` via `vision_pipeline.extract_run_trace`
+3. Prints entry count + state/event distribution
+
+### Controls reference (for user)
+
+| Key | Action |
+|-----|--------|
+| `←` `→` | Move left / right |
+| `Left Alt` | Jump |
+| `Left Ctrl` | Fire / attack |
+| `Esc` | Quit MAME (ends recording) |
+
+### Scripts reference
+
+| Script | Purpose |
+|--------|---------|
+| `scripts/launch_manual_capture_autoboot.sh` | Launch MAME with automated boot + manual gameplay |
+| `scripts/launch_manual_capture.sh` | Launch MAME with no automation (fully manual) |
+| `scripts/extract_frames.sh` | Extract frames from AVI + regenerate trace |
+
+### Plans reference
+
+| Plan | Purpose |
+|------|---------|
+| `plans/gng_boot_only.yaml` | Boot only — coin + start + intro wait, then noop forever |
+| `plans/gng_gameplay.yaml` | Full automated gameplay — used for non-interactive captures |
+
+## Python Environment
+
+**Always use the project virtualenv.** Never invoke bare `python`, `python3`, or `pytest` — they resolve to the system interpreter which may be a different version.
+
+- The virtualenv is at `apps/mame-harness/.venv/`
+- Activate before any command: `source apps/mame-harness/.venv/bin/activate`
+- Or prefix directly: `apps/mame-harness/.venv/bin/pytest`, `apps/mame-harness/.venv/bin/python`
+- The harness venv uses Python 3.11. System Python may be 3.9 or 3.14 — both break `dataclass(slots=True)`.
+
 ## Coding Standards
 
 - Python 3.11+
@@ -88,6 +174,7 @@ The `docs/adr/` directory contains the authoritative record of significant archi
 | ADR-009 | Input plans are deterministic YAML — same plan produces same frame sequence | `input_planner.py`, `plans/` |
 | ADR-010 | Public original game definition layer between abstract mechanics and RN product work | T12 game definition artifacts, RN product direction |
 | ADR-011 | Mechanics-to-scenario transformation and originality validation | T12 encounter grammar, scene recipes, validation gates |
+| ADR-012 | Entity signature-based player identification; multi-region FrameDiffer; ArthurTracker | `packages/vision/frame_differ.py`, `packages/vision/arthur_tracker.py`, `packages/vision/trace_extractor.py` |
 
 ### Known Gaps (consult before implementing)
 
@@ -98,11 +185,11 @@ These are documented limitations in the current implementation. An agent working
 - **ADR-004**: `MameExecution.stdout` and `stderr` are written verbatim to public metadata. They may contain local machine paths. Redaction of subprocess output is not yet implemented.
 - **ADR-004**: `status` in `MameRunResult` is a plain `str`, not an `Enum`. Typos are not caught at definition time.
 - **ADR-005**: Driver contract validation in `preflight.py` has a hardcoded `if profile.profile_id == "gng"` check. Adding a second game requires a new branch rather than a generic contract.
-- **ADR-006**: The vision pipeline is a placeholder. Entity candidates are synthetic. Real pixel analysis is deferred.
 - **ADR-006**: `_read_pgm` only supports P2 (ASCII) PGM. P5 (binary PGM) is not supported. MAME snapshot format compatibility needs verification.
+- **ADR-006**: Multi-region FrameDiffer and ArthurTracker are not yet implemented (T10.5 in progress). Until T10.5-E is complete, `extract_trace` produces one `TraceEntry` per frame aggregate, not one per entity. T10.5-C is subdivided into C.1–C.4 (see task file); C.3 and C.4 are the highest-risk steps.
 - **ADR-007**: `suggested_new_theme_variants` are hardcoded identically for every entity. They should be varied.
-- **ADR-008**: `movement_tolerance` default (1.0 unit) is a placeholder. Correct value depends on the game's coordinate scale, which is not yet determined from real captured evidence.
 - **ADR-008**: State and event strings must match exactly. There is no canonical vocabulary — naming drift between observation and simulation layers causes false mismatches.
+- **ADR-012**: `ArthurSignature` default values are calibrated for GNG at 256×224. A game at a different native resolution requires new values. Crouch/death animations (height < 24 px) produce `None` from `find_arthur` — short trace gaps are accepted.
 
 ## Documentation and Vault
 

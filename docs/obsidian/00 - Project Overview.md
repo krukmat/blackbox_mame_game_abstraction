@@ -81,6 +81,7 @@ evidence/private/    Private evidence (gitignored)
 | [[ADR-009 Input Plan Determinism]] | YAML-defined reproducible frame sequences |
 | [[ADR-010 Public Original Game Definition Layer]] | Public layer for pillars, product direction, encounter grammar, scene recipes, and progression |
 | [[ADR-011 Mechanics-to-Scenario Transformation and Originality Validation]] | Rules for transforming abstract mechanics into original scenarios without copying expressive structure |
+| [[ADR-012 Entity Signature-Based Player Identification]] | Geometric signature (height, center_y) to isolate the player entity from frame diffs; multi-region FrameDiffer; ArthurTracker |
 
 ## Current Phase
 

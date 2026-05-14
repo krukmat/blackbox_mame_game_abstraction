@@ -33,12 +33,25 @@ Make `gng.zip` (Ghosts'n Goblins) a reproducible, legally bounded observation so
 | T09.2 | Schema Field Definitions | 🔲 Planned |
 | T09.3 | Clean-room Boundary Review | 🔲 Planned |
 | T09.4 | Schema File + Examples | 🔲 Planned |
-| T10 | Private Evidence to Public Abstract Spec Transformation | 🔲 Planned |
+| T10 | Private Evidence to Public Abstract Spec Transformation | 🟡 In Progress |
+| T10.1 | Gameplay Capture with Active Input Plan | ✅ Done — 2026-05-13 |
+| T10.2 | Frame-by-Frame Behavioral Extraction | ✅ Done — 2026-05-14 |
+| T10.3 | Timing Calibration | ✅ Done — 2026-05-14 |
+| T10.4 | Public Artifact Generation + Guardrails Verification | 🔲 Planned |
+| T10.5 | ArthurTracker — Entity Signature-Based Player Identification | 🔲 Planned |
+| T10.5-D | TDD Suite | 🔲 Planned |
+| T10.5-A | Multi-region FrameDiffer | 🔲 Planned |
+| T10.5-B | ArthurSignature + ArthurTracker | 🔲 Planned |
+| T10.5-C.1 | Player isolation in extract_trace | 🔲 Planned |
+| T10.5-C.2 | Remaining regions → TraceEntry | 🔲 Planned |
+| T10.5-C.3 | Per-entity prev_state tracking | 🔲 Planned |
+| T10.5-C.4 | Rule 6 spawn/die multi-entity | 🔲 Planned |
+| T10.5-E | Regenerate specs/traces/gng_trace.json | 🔲 Planned |
 | T11 | RN Prototype Hookup | 🔲 Planned |
 
 ## Dependency Order
 
-T01 → T02 → T03 → T04 → T05 → T06 → T07 → T08 → T09 → T10 → T11
+T01 → T02 → T03 → T04 → T05 → T06 → T07 → T08 → T09 → T10.1 → T10.2 → T10.3 → T10.5-D → T10.5-A → T10.5-B → T10.5-C.1 → T10.5-C.2 → T10.5-C.3 → T10.5-C.4 → T10.5-E → T10.4 → T11
 
 Each task depends on the stabilized contract from all prior tasks.
 

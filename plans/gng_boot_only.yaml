@@ -1,0 +1,54 @@
+# gng_boot_only.yaml
+#
+# PURPOSE: Automated boot sequence only — coin insert + start + intro wait.
+# After frame 1505, all inputs are noop. The user takes control of Arthur.
+#
+# USE CASE: Manual gameplay recording sessions where the agent handles the
+# boot sequence and the user plays freely from Arthur's first controllable frame.
+#
+# Boot timing calibrated from run_e18611b8a7e7 (2026-05-14):
+#   Frame    0–949:  RAM/ROM check + attract mode (no input needed)
+#   Frame  950–959:  insert_coin
+#   Frame  960–1019: wait for 1P start prompt
+#   Frame 1020–1024: press_start
+#   Frame 1025–1504: title transition + stage 1 intro (Arthur walks in, kneels)
+#   Frame 1505+:     Arthur is controllable — user plays from here
+#
+# The Lua script (scripts/mame_autoboot.lua) reads this plan and injects
+# the inputs frame-accurately. Once noop frames start, the user's keyboard
+# input takes over naturally (MAME resumes normal input handling).
+#
+# MAME default controls:
+#   ← →        Move left / right
+#   Left Alt    Jump
+#   Left Ctrl   Fire / attack
+#   5           Insert coin (backup, already done by this plan)
+#   1           1P Start    (backup, already done by this plan)
+#   Esc         Quit MAME
+
+plan_name: gng_boot_only
+game_id: gngb
+steps:
+  - action: noop
+    frames: 950
+    notes: "Boot: RAM/ROM check + attract mode. No input. ~15.9s at 59.64fps."
+
+  - action: insert_coin
+    frames: 10
+    notes: "Insert coin. Attract mode must be showing coin prompt by frame 950."
+
+  - action: noop
+    frames: 60
+    notes: "Wait for 1P start prompt to appear on screen."
+
+  - action: press_start
+    frames: 5
+    notes: "Press 1P start."
+
+  - action: noop
+    frames: 480
+    notes: "Title transition + stage 1 intro. Arthur walks in and kneels. ~8s."
+
+  - action: noop
+    frames: 9999
+    notes: "Arthur is controllable. User plays from here. Noop = no injected input."

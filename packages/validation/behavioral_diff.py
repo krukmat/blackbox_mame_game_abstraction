@@ -34,7 +34,7 @@ class BehavioralDiff:
         self,
         observed: list[TraceEntry],
         simulated: list[TraceEntry],
-        movement_tolerance: float = 1.0,
+        movement_tolerance: float = 2.0,  # T10.3: GNG native res 256x224 px; 1 unit = 1 px; 2.0 covers sub-pixel rounding
     ) -> BehavioralDiffResult:
         mismatches: list[str] = []
         observed_map = {(entry.frame, entry.entity_id): entry for entry in observed}

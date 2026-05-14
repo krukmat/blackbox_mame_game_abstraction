@@ -1,11 +1,21 @@
 from __future__ import annotations
 
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 
 from PIL import Image
 
 from guardrails import ensure_private_evidence_path
+
+# T10.3 — import calibrated timing constants; guard against path when running outside harness
+try:
+    from fps_calibration import GNG_MS_PER_FRAME, timestamp_ms_for_frame
+except ModuleNotFoundError:  # vision package used standalone without harness on sys.path
+    GNG_MS_PER_FRAME: float = 16.768  # type: ignore[assignment]
+
+    def timestamp_ms_for_frame(frame_index: int, ms_per_frame: float) -> int:  # type: ignore[misc]
+        return int(frame_index * ms_per_frame)
 
 _PNG_SUFFIXES = {".png"}
 _PGM_SUFFIXES = {".pgm"}
@@ -27,14 +37,19 @@ class FrameManifest:
     frames: list[FrameRecord]
 
     @classmethod
-    def from_run(cls, run_id: str, frames_dir: Path) -> "FrameManifest":
+    def from_run(
+        cls,
+        run_id: str,
+        frames_dir: Path,
+        ms_per_frame: float = GNG_MS_PER_FRAME,  # T10.3: real interval, not hardcoded 16
+    ) -> "FrameManifest":
         # T10.2.1.2 — support extracted_png/ directories produced by ffmpeg (T10.2.1.1 decision)
         png_paths = sorted(frames_dir.glob("*.png"))
         pgm_paths = sorted(frames_dir.glob("*.pgm"))
 
         if png_paths:
-            return cls._from_paths(run_id, png_paths, _read_png)
-        return cls._from_paths(run_id, pgm_paths, _read_pgm)
+            return cls._from_paths(run_id, png_paths, _read_png, ms_per_frame)
+        return cls._from_paths(run_id, pgm_paths, _read_pgm, ms_per_frame)
 
     @classmethod
     def _from_paths(
@@ -42,6 +57,7 @@ class FrameManifest:
         run_id: str,
         paths: list[Path],
         reader: object,
+        ms_per_frame: float = GNG_MS_PER_FRAME,  # T10.3
     ) -> "FrameManifest":
         records: list[FrameRecord] = []
         for index, path in enumerate(paths):
@@ -54,7 +70,7 @@ class FrameManifest:
                     width=width,
                     height=height,
                     frame_number=index,
-                    timestamp_ms=index * 16,
+                    timestamp_ms=timestamp_ms_for_frame(index, ms_per_frame),  # T10.3
                 )
             )
         return cls(run_id=run_id, frames=records)

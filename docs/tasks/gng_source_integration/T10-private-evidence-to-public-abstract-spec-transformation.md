@@ -27,8 +27,9 @@
 | T10.2.2.3 | Event Inference from State Transitions | `M` | `Medium` | ✅ Done — 2026-05-14 |
 | T10.2.2.4 | TraceExtractor Integration + Clean-room Verification | `S` | `Low` | ✅ Done — 2026-05-14 |
 | T10.2.3 | Trace Output Writer + Guardrails Verification | `S` | `Medium` | ✅ Done — 2026-05-14 |
-| T10.3 | Timing Calibration | `M` | `Medium` | 🔲 Planned |
+| T10.3 | Timing Calibration | `M` | `Medium` | ✅ Done — 2026-05-14 |
 | T10.4 | Public Artifact Generation + Guardrails Verification | `S` | `Low` | 🔲 Planned |
+| T10.5 | ArthurTracker — Entity Signature-Based Player Identification | `L` | `High` | 🔲 Planned |
 
 ## Subtask Files
 
@@ -53,6 +54,7 @@
 - [T10.2.3-trace-output-writer.md](T10.2.3-trace-output-writer.md)
 - [T10.3-timing-calibration.md](T10.3-timing-calibration.md)
 - [T10.4-public-artifact-generation.md](T10.4-public-artifact-generation.md)
+- [T10.5-arthur-tracker.md](T10.5-arthur-tracker.md)
 
 ## Purpose
 
