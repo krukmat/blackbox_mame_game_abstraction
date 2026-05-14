@@ -93,14 +93,23 @@ The public output is intentionally abstract: mechanics data, asset recipes, vali
 
 ## Current status
 
-T01–T07 are complete. The pipeline runs end-to-end in dry-run mode. T08 is the first real MAME capture.
+The repo is past dry-run setup. The GNG source profile, runner hardening, redaction policy, contract tests, CLI integration, frame-by-frame trace extraction, and FPS calibration are all in place.
+
+Current milestone:
+
+- T01-T07: complete
+- T10.1-T10.3: complete
+- Manual capture helpers are in repo: `scripts/launch_manual_capture.sh` and `scripts/extract_frames.sh`
+- Public trace generation now targets `specs/traces/gng_trace.json` from private evidence under `evidence/private/`
+- Current known next blockers: T10.4 guardrail verification on the final trace and T10.5 ArthurTracker multi-entity work
+- Latest green baseline referenced by the task docs: `243` tests passed
 
 ```mermaid
 flowchart LR
     A["Done\nT01-T03\nruntime, source profile,\nMAME preflight"]
     B["Done\nT04-T07\nrunner hardening,\nredaction, tests, CLI"]
-    C["Next\nT08\nfirst real GNG capture"]
-    D["Planned\nT09-T10\nabstract observation schema\nand public spec generation"]
+    C["Done\nT10.1-T10.3\ncapture, trace extraction,\nFPS calibration"]
+    D["Next\nT10.5 + T10.4\nmulti-entity tracking\nand final guardrails"]
     E["Planned\nT11\nReact Native prototype hookup"]
 
     A --> B --> C --> D --> E
@@ -108,9 +117,9 @@ flowchart LR
     classDef done fill:#d8f3dc,stroke:#2d6a4f,color:#1b4332
     classDef next fill:#fff3cd,stroke:#c77900,color:#2d3436
     classDef planned fill:#e9ecef,stroke:#6c757d,color:#212529
-    class A,B done
-    class C next
-    class D,E planned
+    class A,B,C done
+    class D next
+    class E planned
 ```
 
 After T10/T11, the next documented phase is T12: Original Game Definition. T12 defines Signal Garden as a working original direction and adds gameplay pillars, encounter grammar, scene recipes, transformation rules, progression, and originality validation before the RN prototype moves beyond clean-room mechanics playback.
@@ -119,33 +128,42 @@ After T10/T11, the next documented phase is T12: Original Game Definition. T12 d
 
 ## Quick start
 
-You need Python 3.11 and MAME installed. A ROM is required for real capture; dry-run mode lets you verify the setup first.
+You need Python 3.11, MAME, and the harness virtualenv. A ROM is required for real capture; dry-run mode lets you verify the setup first.
 
 ```bash
-python3.11 -m venv .venv && source .venv/bin/activate
+python3.11 -m venv apps/mame-harness/.venv
+source apps/mame-harness/.venv/bin/activate
 pip install -e '.[dev]'
 
 # Verify your setup in dry-run mode
-python apps/mame-harness/cli.py run --rom gng --dry-run --frames-to-run 300
+apps/mame-harness/.venv/bin/python apps/mame-harness/cli.py run --rom gng --dry-run --frames-to-run 300
 
 # Run tests with the supported interpreter
-make test
-# or explicitly:
-python -m pytest -q
+apps/mame-harness/.venv/bin/pytest -q
 ```
 
-The dry run builds the same command and metadata path the real capture would use while skipping the ROM-backed recording step. After that, the tests check the clean-room contract for private path isolation, blocked evidence formats, and asset recipes with originality rules.
+The dry run builds the same command and metadata path the real capture would use while skipping the ROM-backed recording step. After that, the tests check the clean-room contract for private path isolation, blocked evidence formats, trace output safety, and asset recipes with originality rules.
 
 Full pipeline commands:
 
 ```bash
-python apps/mame-harness/cli.py init
-python apps/mame-harness/cli.py run --rom gng --rom-path /path/to/roms --frames-to-run 300
-python apps/mame-harness/cli.py analyze-placeholder --run-id <run-id>
-python apps/mame-harness/cli.py generate-asset-recipes-placeholder --entity-candidates specs/entities/entity_candidates.generated.json
-python apps/mame-harness/cli.py validate-placeholder \
+apps/mame-harness/.venv/bin/python apps/mame-harness/cli.py init
+apps/mame-harness/.venv/bin/python apps/mame-harness/cli.py run --rom gng --rom-path /path/to/roms --frames-to-run 300
+apps/mame-harness/.venv/bin/python apps/mame-harness/cli.py extract-trace \
+  --run-id <run-id> \
+  --input-plan plans/gng_gameplay.yaml \
+  --output specs/traces/gng_trace.json
+apps/mame-harness/.venv/bin/python apps/mame-harness/cli.py generate-asset-recipes-placeholder --entity-candidates specs/entities/entity_candidates.generated.json
+apps/mame-harness/.venv/bin/python apps/mame-harness/cli.py validate-placeholder \
   --observed-trace specs/validation/sample_observed_trace.json \
   --simulated-trace specs/validation/sample_simulated_trace.json
+```
+
+Manual local recording flow:
+
+```bash
+./scripts/launch_manual_capture.sh
+./scripts/extract_frames.sh manual_01
 ```
 
 ---
@@ -255,7 +273,7 @@ plans/              Input plan YAML files (reproducible frame sequences)
 specs/              Public output artifacts — tracked in git
 evidence/private/   Gitignored private captures
 docs/
-  adr/              Architecture Decision Records (ADR-001 through ADR-011)
+  adr/              Architecture Decision Records (ADR-001 through ADR-012)
   obsidian/         Obsidian vault with module notes and wikilinks
 ```
 
@@ -268,7 +286,7 @@ The pipeline is stable and ready to extend. Each area has a focused entry point,
 | Area | Where to start | Effort |
 |------|---------------|--------|
 | Add a second game (any MAME title) | [`source_profiles.py`](apps/mame-harness/source_profiles.py) — add a `SourceProfile` dataclass, ~30 lines | Small |
-| Real vision analysis (replace the stub) | [`packages/vision/`](packages/vision/) — `frame_differ.py` outputs synthetic data today; swap in real CV | Medium |
+| Multi-entity vision tracking | [`packages/vision/`](packages/vision/) — current trace extraction is real, but player/enemy separation still needs T10.5 ArthurTracker work | Medium |
 | Richer asset recipes (varied themes per entity) | [`recipe_generator.py`](packages/asset-factory/recipe_generator.py) — `suggested_new_theme_variants` is hardcoded | Small |
 | Original game definition | [`original_game_definition_plan.md`](docs/plans/original_game_definition_plan.md) — T12 pillars, encounter grammar, scene recipes, and originality validation | Medium |
 | React Native prototype scene | [`apps/rn-prototype/`](apps/rn-prototype/) — wire one scene to `specs/` outputs | Medium |
