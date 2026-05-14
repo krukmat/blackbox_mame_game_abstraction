@@ -109,7 +109,7 @@ flowchart LR
     A["Done\nT01-T03\nruntime, source profile,\nMAME preflight"]
     B["Done\nT04-T07\nrunner hardening,\nredaction, tests, CLI"]
     C["Done\nT10.1-T10.3\ncapture, trace extraction,\nFPS calibration"]
-    D["Next\nT10.5 + T10.4\nmulti-entity tracking\nand final guardrails"]
+    D["Next\nT10.5 then T10.4\nmulti-entity tracking\nbefore final guardrails"]
     E["Planned\nT11\nReact Native prototype hookup"]
 
     A --> B --> C --> D --> E
@@ -148,7 +148,10 @@ Full pipeline commands:
 
 ```bash
 apps/mame-harness/.venv/bin/python apps/mame-harness/cli.py init
-apps/mame-harness/.venv/bin/python apps/mame-harness/cli.py run --rom gng --rom-path /path/to/roms --frames-to-run 300
+apps/mame-harness/.venv/bin/python apps/mame-harness/cli.py run --rom gng --rom-path /path/to/roms --input-plan plans/gng_gameplay.yaml --frames-to-run 300
+apps/mame-harness/.venv/bin/python apps/mame-harness/cli.py analyze-placeholder \
+  --run-id <run-id> \
+  --output specs/entities/entity_candidates.generated.json
 apps/mame-harness/.venv/bin/python apps/mame-harness/cli.py extract-trace \
   --run-id <run-id> \
   --input-plan plans/gng_gameplay.yaml \

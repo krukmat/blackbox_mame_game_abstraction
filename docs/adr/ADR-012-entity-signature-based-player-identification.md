@@ -44,11 +44,15 @@ Default values are calibrated from GNG's 256×224 native resolution. A future ga
 
 **FrameDiffer** is extended to produce multiple regions per frame using connected-component labeling over changed pixels, replacing the single global bounding box. `FrameDiffStat.changed_regions` is already typed as `list[MotionBox]`, so the contract is unchanged — only the cardinality increases.
 
-**TraceExtractor** is updated in four sequential steps (T10.5-C.1–C.4):
+**TraceExtractor** is updated in eight sequential steps (T10.5-C.1–C.4.c.2.b):
 1. **C.1 — Player isolation**: call `ArthurTracker.find_arthur`; emit player `TraceEntry` with `entity_id = "player"` when a match is found; emit nothing for the player when `find_arthur` returns `None`.
 2. **C.2 — Remaining regions**: classify each non-player region with `_entity_type_from_box`; emit one `TraceEntry` per region.
 3. **C.3 — Per-entity prev_state**: replace the shared reverse-scan prev_state lookup with `prev_state_by_entity: dict[str, str]` and `prev_region_by_entity: dict[str, MotionBox]`, keyed by `entity_id`, so state never bleeds between player and enemies.
-4. **C.4 — Multi-entity spawn/die**: replace `prev_seen: dict[str, int]` (keyed by `entity_type`) with `prev_seen_by_id: dict[str, int]` (keyed by `entity_id`); player gets one `spawn` on first appearance; enemies get `spawn` per ephemeral ID; `die` is annotated when an entity's region is absent from the next frame.
+4. **C.4.a — Presence bookkeeping foundation**: replace `prev_seen: dict[str, int]` (keyed by `entity_type`) with `prev_seen_by_id: dict[str, int]` (keyed by `entity_id`).
+5. **C.4.b — Spawn emission**: player gets one `spawn` on first appearance; enemies get `spawn` per ephemeral ID.
+6. **C.4.c.1 — Disappearance detection**: compute which `entity_id` values are absent from the next frame.
+7. **C.4.c.2.a — Last-entry resolution**: resolve the last real emitted entry for each disappearing `entity_id`.
+8. **C.4.c.2.b — Die annotation**: append `die` to each resolved disappearing entity entry, without duplication.
 
 All output remains numeric-only per ADR-006. No path references are introduced.
 

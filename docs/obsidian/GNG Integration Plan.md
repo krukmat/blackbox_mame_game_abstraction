@@ -38,20 +38,24 @@ Make `gng.zip` (Ghosts'n Goblins) a reproducible, legally bounded observation so
 | T10.2 | Frame-by-Frame Behavioral Extraction | ✅ Done — 2026-05-14 |
 | T10.3 | Timing Calibration | ✅ Done — 2026-05-14 |
 | T10.4 | Public Artifact Generation + Guardrails Verification | 🔲 Planned |
-| T10.5 | ArthurTracker — Entity Signature-Based Player Identification | 🔲 Planned |
-| T10.5-D | TDD Suite | 🔲 Planned |
-| T10.5-A | Multi-region FrameDiffer | 🔲 Planned |
-| T10.5-B | ArthurSignature + ArthurTracker | 🔲 Planned |
-| T10.5-C.1 | Player isolation in extract_trace | 🔲 Planned |
-| T10.5-C.2 | Remaining regions → TraceEntry | 🔲 Planned |
-| T10.5-C.3 | Per-entity prev_state tracking | 🔲 Planned |
-| T10.5-C.4 | Rule 6 spawn/die multi-entity | 🔲 Planned |
-| T10.5-E | Regenerate specs/traces/gng_trace.json | 🔲 Planned |
+| T10.5 | ArthurTracker — Entity Signature-Based Player Identification | ✅ Done |
+| T10.5-D | TDD Suite | ✅ Done |
+| T10.5-A | Multi-region FrameDiffer | ✅ Done |
+| T10.5-B | ArthurSignature + ArthurTracker | ✅ Done |
+| T10.5-C.1 | Player isolation in extract_trace | ✅ Done |
+| T10.5-C.2 | Remaining regions → TraceEntry | ✅ Done |
+| T10.5-C.3 | Per-entity prev_state tracking | ✅ Done |
+| T10.5-C.4.a | `prev_seen_by_id` foundation | ✅ Done |
+| T10.5-C.4.b | Multi-entity spawn emission | ✅ Done |
+| T10.5-C.4.c.1 | Disappearance detection by entity | ✅ Done |
+| T10.5-C.4.c.2.a | Last-entry target resolution | ✅ Done |
+| T10.5-C.4.c.2.b | Die event mutation + dedup | ✅ Done |
+| T10.5-E | Regenerate specs/traces/gng_trace.json | ✅ Done |
 | T11 | RN Prototype Hookup | 🔲 Planned |
 
 ## Dependency Order
 
-T01 → T02 → T03 → T04 → T05 → T06 → T07 → T08 → T09 → T10.1 → T10.2 → T10.3 → T10.5-D → T10.5-A → T10.5-B → T10.5-C.1 → T10.5-C.2 → T10.5-C.3 → T10.5-C.4 → T10.5-E → T10.4 → T11
+T01 → T02 → T03 → T04 → T05 → T06 → T07 → T08 → T09 → T10.1 → T10.2 → T10.3 → T10.5-D → T10.5-A → T10.5-B → T10.5-C.1 → T10.5-C.2 → T10.5-C.3 → T10.5-C.4.a → T10.5-C.4.b → T10.5-C.4.c.1 → T10.5-C.4.c.2.a → T10.5-C.4.c.2.b → T10.5-E → T10.4 → T11
 
 Each task depends on the stabilized contract from all prior tasks.
 

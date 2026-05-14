@@ -186,7 +186,7 @@ These are documented limitations in the current implementation. An agent working
 - **ADR-004**: `status` in `MameRunResult` is a plain `str`, not an `Enum`. Typos are not caught at definition time.
 - **ADR-005**: Driver contract validation in `preflight.py` has a hardcoded `if profile.profile_id == "gng"` check. Adding a second game requires a new branch rather than a generic contract.
 - **ADR-006**: `_read_pgm` only supports P2 (ASCII) PGM. P5 (binary PGM) is not supported. MAME snapshot format compatibility needs verification.
-- **ADR-006**: Multi-region FrameDiffer and ArthurTracker are not yet implemented (T10.5 in progress). Until T10.5-E is complete, `extract_trace` produces one `TraceEntry` per frame aggregate, not one per entity. T10.5-C is subdivided into C.1–C.4 (see task file); C.3 and C.4 are the highest-risk steps.
+- **ADR-006**: Multi-region FrameDiffer and ArthurTracker are not yet implemented (T10.5 in progress). Until T10.5-E is complete, `extract_trace` produces one `TraceEntry` per frame aggregate, not one per entity. T10.5-C is subdivided into C.1–C.4.c.2.b (see task file); C.3 and C.4.c.2.b are the highest-risk steps.
 - **ADR-007**: `suggested_new_theme_variants` are hardcoded identically for every entity. They should be varied.
 - **ADR-008**: State and event strings must match exactly. There is no canonical vocabulary — naming drift between observation and simulation layers causes false mismatches.
 - **ADR-012**: `ArthurSignature` default values are calibrated for GNG at 256×224. A game at a different native resolution requires new values. Crouch/death animations (height < 24 px) produce `None` from `find_arthur` — short trace gaps are accepted.

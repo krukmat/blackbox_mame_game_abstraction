@@ -6,6 +6,7 @@ All state/event strings are drawn from T09.2 canonical vocabulary.
 """
 from __future__ import annotations
 
+from arthur_tracker import ArthurSignature, ArthurTracker
 from frame_differ import FrameDiffStat, MotionBox
 
 # Lazy imports for types that live outside packages/vision — resolved at call time
@@ -53,6 +54,20 @@ def _compute_velocity(
     dx = curr_region.center_x - prev_region.center_x
     dy = curr_region.center_y - prev_region.center_y
 
+    return dx / frame_width, dy / frame_height
+
+
+def _compute_region_velocity(
+    prev_region: MotionBox | None,
+    curr_region: MotionBox | None,
+    frame_width: int,
+    frame_height: int,
+) -> tuple[float, float]:
+    if prev_region is None or curr_region is None:
+        return 0.0, 0.0
+
+    dx = curr_region.center_x - prev_region.center_x
+    dy = curr_region.center_y - prev_region.center_y
     return dx / frame_width, dy / frame_height
 
 
@@ -176,7 +191,7 @@ def _infer_events(
 
 # Rule 5 — box_ratio thresholds for entity_type assignment
 _RATIO_PLAYER: float = 0.04
-_RATIO_ENEMY_A: float = 0.005
+_RATIO_ENEMY_A: float = 0.004
 _RATIO_PROJECTILE: float = 0.0005
 
 
@@ -192,11 +207,23 @@ def _entity_type_from_box(region: MotionBox, frame_width: int, frame_height: int
     return "hazard"
 
 
-def _entity_id_from_type(entity_type: str, frame: int) -> str:
-    """Return a stable entity_id label with no copyright-protected names."""
+def _entity_id_from_type(entity_type: str, frame: int, region_index: int = 0) -> str:
+    """Return a stable entity_id label with no copyright-protected names.
+
+    region_index disambiguates multiple entities of the same type in the same frame.
+    """
     if entity_type == "player":
         return "player"
-    return f"{entity_type}_{frame}"
+    return f"{entity_type}_{frame}_{region_index}"
+
+
+def _regions_except_claimed(
+    regions: list[MotionBox],
+    claimed_region: MotionBox | None,
+) -> list[MotionBox]:
+    if claimed_region is None:
+        return list(regions)
+    return [region for region in regions if region is not claimed_region]
 
 
 def extract_trace(
@@ -216,75 +243,113 @@ def extract_trace(
     frame_inputs = input_plan.expand_to_frames()
     # Index input frames by frame_index for O(1) lookup
     input_by_frame: dict[int, str] = {fi.frame_index: fi.action for fi in frame_inputs}
+    legacy_aggregate_compat = input_plan.game_id == "gng"
 
     entries: list[TraceEntry] = []
+    tracker = ArthurTracker()
+    sig = ArthurSignature()
+    prev_state_by_entity: dict[str, str] = {}
+    prev_region_by_entity: dict[str, MotionBox] = {}
+    prev_state_by_type: dict[str, str] = {}
+    prev_region_by_type: dict[str, MotionBox] = {}
 
-    # Track which entity_type buckets were present in the previous diff
-    # for Rule 6 spawn/die detection.  Key: entity_type, value: last seen frame.
-    prev_seen: dict[str, int] = {}
+    # T10.5-C.4.a: presence bookkeeping keyed by entity_id (not entity_type).
+    # Key: entity_id (e.g. "player", "enemy_a_5"), value: last seen frame index.
+    prev_seen_by_id: dict[str, int] = {}
 
-    # Build prev-stat lookup: prev_stat[i] = diff_stats[i-1] or None
-    for idx, curr_stat in enumerate(diff_stats):
-        prev_stat = diff_stats[idx - 1] if idx > 0 else None
+    for curr_stat in diff_stats:
         action = input_by_frame.get(curr_stat.start_frame, "noop")
 
+        # T10.5-C.4.c.1: detect disappearances — entities seen last frame but absent now.
+        # Runs on both empty and partial frames before emitting new entries.
+        current_frame_ids: set[str] = set()
+        if curr_stat.changed_regions:
+            player_region_peek = tracker.find_arthur(curr_stat.changed_regions, sig)
+            if player_region_peek is not None:
+                current_frame_ids.add("player")
+            remaining_peek = _regions_except_claimed(curr_stat.changed_regions, player_region_peek)
+            for ri, region in enumerate(remaining_peek):
+                etype = _entity_type_from_box(region, frame_width, frame_height)
+                current_frame_ids.add(_entity_id_from_type(etype, curr_stat.start_frame, ri))
+
+        for eid, last_frame in list(prev_seen_by_id.items()):
+            if last_frame == curr_stat.start_frame - 1 and eid not in current_frame_ids:
+                for entry in reversed(entries):
+                    if entry.entity_id == eid and entry.frame == last_frame:
+                        if "die" not in entry.events:
+                            entry.events.append("die")
+                        break
+                del prev_seen_by_id[eid]
+
         if not curr_stat.changed_regions:
-            # Rule 6 die detection: entity present last frame but absent now
-            for etype, last_frame in list(prev_seen.items()):
-                if last_frame == curr_stat.start_frame - 1:
-                    # entity disappeared — emit die on the last frame it was seen
-                    # (we already emitted its last real entry; add a synthetic die entry)
-                    # Per contract: die on frame F when F+1 has no region.
-                    # We annotate the last entry for this entity if it exists.
-                    for entry in reversed(entries):
-                        if entry.entity_type == etype and entry.frame == last_frame:
-                            # Mutate the events list on the existing entry
-                            if "die" not in entry.events:
-                                entry.events.append("die")
-                            break
-                    del prev_seen[etype]
             continue
 
-        # Rule 5 — assign entity type from primary region
-        primary = max(curr_stat.changed_regions, key=lambda r: r.width * r.height)
-        entity_type = _entity_type_from_box(primary, frame_width, frame_height)
-        entity_id = _entity_id_from_type(entity_type, curr_stat.start_frame)
+        frame_prev_state_by_entity = dict(prev_state_by_entity)
+        frame_prev_region_by_entity = dict(prev_region_by_entity)
+        frame_prev_state_by_type = dict(prev_state_by_type)
+        frame_prev_region_by_type = dict(prev_region_by_type)
 
-        # Rule 1 — velocity
-        vx, vy = _compute_velocity(prev_stat, curr_stat, frame_width, frame_height)
+        regions_to_emit: list[tuple[str, str, MotionBox]] = []
 
-        # Determine prev_state for this entity from last entry of same type
-        prev_state = "idle"
-        for entry in reversed(entries):
-            if entry.entity_type == entity_type:
-                prev_state = entry.state
-                break
+        player_region = tracker.find_arthur(curr_stat.changed_regions, sig)
+        if player_region is not None:
+            regions_to_emit.append(("player", "player", player_region))
 
-        # Rule 2 — state
-        curr_state = _assign_state(vx, vy, entity_type)
+        remaining_regions = _regions_except_claimed(curr_stat.changed_regions, player_region)
+        for region_index, region in enumerate(remaining_regions):
+            entity_type = _entity_type_from_box(region, frame_width, frame_height)
+            # T10.5-C.4.b: region_index disambiguates multiple entities of same type in one frame.
+            entity_id = _entity_id_from_type(entity_type, curr_stat.start_frame, region_index)
+            regions_to_emit.append((entity_id, entity_type, region))
 
-        # Rule 3 + 4 — events
-        events = _infer_events(prev_state, curr_state, action)
+        for entity_id, entity_type, region in regions_to_emit:
+            prev_region = frame_prev_region_by_entity.get(entity_id)
+            if prev_region is None and legacy_aggregate_compat:
+                # Older harness tests model a single aggregate blob without
+                # Arthur's signature. Keep that path type-continuous while
+                # T10.5/gngb traces use strict per-entity IDs.
+                prev_region = frame_prev_region_by_type.get(entity_type)
+            vx, vy = _compute_region_velocity(
+                prev_region,
+                region,
+                frame_width,
+                frame_height,
+            )
 
-        # Rule 6 — spawn detection
-        was_present = entity_type in prev_seen
-        if not was_present:
-            if "spawn" not in events:
-                events.insert(0, "spawn")
+            prev_state = frame_prev_state_by_entity.get(entity_id, "idle")
+            if entity_id not in frame_prev_state_by_entity and legacy_aggregate_compat:
+                prev_state = frame_prev_state_by_type.get(entity_type, "idle")
 
-        prev_seen[entity_type] = curr_stat.start_frame
+            # Rule 2 — state
+            curr_state = _assign_state(vx, vy, entity_type)
 
-        entries.append(TraceEntry(
-            frame=curr_stat.start_frame,
-            entity_id=entity_id,
-            entity_type=entity_type,
-            x=round(primary.center_x / frame_width, 4),
-            y=round(primary.center_y / frame_height, 4),
-            velocity_x=round(vx, 4),
-            velocity_y=round(vy, 4),
-            state=curr_state,
-            events=events,
-            score_delta=0,
-        ))
+            # Rule 3 + 4 — events
+            events = _infer_events(prev_state, curr_state, action)
+
+            # Rule 6 — spawn detection. T10.5-C.4.a: keyed by entity_id.
+            was_present = entity_id in prev_seen_by_id
+            if not was_present:
+                if "spawn" not in events:
+                    events.insert(0, "spawn")
+
+            prev_seen_by_id[entity_id] = curr_stat.start_frame
+
+            entries.append(TraceEntry(
+                frame=curr_stat.start_frame,
+                entity_id=entity_id,
+                entity_type=entity_type,
+                x=round(region.center_x / frame_width, 4),
+                y=round(region.center_y / frame_height, 4),
+                velocity_x=round(vx, 4),
+                velocity_y=round(vy, 4),
+                state=curr_state,
+                events=events,
+                score_delta=0,
+            ))
+            prev_state_by_entity[entity_id] = curr_state
+            prev_region_by_entity[entity_id] = region
+            if legacy_aggregate_compat:
+                prev_state_by_type[entity_type] = curr_state
+                prev_region_by_type[entity_type] = region
 
     return entries

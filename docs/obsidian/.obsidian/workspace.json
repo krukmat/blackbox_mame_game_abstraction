@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "ADR-012 Entity Signature-Based Player Identification.md",
+                "file": "00 - Project Overview.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "ADR-012 Entity Signature-Based Player Identification"
+              "title": "00 - Project Overview"
             }
           }
         ]
@@ -94,7 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "ADR-012 Entity Signature-Based Player Identification.md",
+                "file": "00 - Project Overview.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Enlaces entrantes de ADR-012 Entity Signature-Based Player Identification"
+              "title": "Enlaces entrantes de 00 - Project Overview"
             }
           },
           {
@@ -113,12 +113,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "ADR-012 Entity Signature-Based Player Identification.md",
+                "file": "00 - Project Overview.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Enlaces salientes de ADR-012 Entity Signature-Based Player Identification"
+              "title": "Enlaces salientes de 00 - Project Overview"
             }
           },
           {
@@ -156,13 +156,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "ADR-012 Entity Signature-Based Player Identification.md",
+                "file": "00 - Project Overview.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Esquema de ADR-012 Entity Signature-Based Player Identification"
+              "title": "Esquema de 00 - Project Overview"
             }
           }
         ]
@@ -185,6 +185,7 @@
   },
   "active": "900b4a0753972d55",
   "lastOpenFiles": [
+    "ADR-012 Entity Signature-Based Player Identification.md",
     "ADR-011 Mechanics-to-Scenario Transformation and Originality Validation.md"
   ]
 }
