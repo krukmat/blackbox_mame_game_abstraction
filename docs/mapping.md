@@ -48,6 +48,33 @@ This first implementation does not rewrite the runner, Lua injection, or MAME ex
 - `plans/sequences/` — canonical control sequences
 - `plans/generated/` — compiled public input plans compatible with `input_planner.py`
 
+## GNG Runtime Path
+
+For GNG, the canonical layered path is now:
+
+```text
+profiles/games/gngb/default_actions.yaml
+  -> plans/sequences/gng_boot_only.yaml or plans/sequences/gng_gameplay.yaml
+  -> plans/generated/gng_boot_only.yaml or plans/generated/gng_gameplay.yaml
+  -> input_planner.py
+  -> private JSON
+  -> scripts/mame_autoboot.lua
+  -> MAME
+```
+
+Use these terms consistently:
+
+- `plans/sequences/...` = editable layered source of truth
+- `plans/generated/...` = runtime-facing public plans
+
+The older authored semantic plans under `plans/gng_boot_only.yaml` and `plans/gng_gameplay.yaml` remain historical reference artifacts only. They are no longer the canonical operational path.
+
+Future boot calibration work remains bounded by ADR-018:
+
+- a public `profiles/games/gngb/boot_calibration.yaml` may become the timing source
+- that calibration artifact would regenerate or replace the fixed-wait boot portions of the sequence/generation flow
+- it must not introduce a second GNG-specific runtime model outside the same generated-plan boundary
+
 ## Clean-Room Boundary
 
 These files are public clean-room artifacts. They may contain abstract mappings only.

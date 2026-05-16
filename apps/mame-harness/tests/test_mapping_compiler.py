@@ -6,6 +6,7 @@ import pytest
 import yaml
 
 from conftest import ROOT
+from guardrails import ensure_no_private_paths, ensure_public_output_path
 from input_planner import VALID_ACTIONS, load_input_plan
 from mapping_compiler import build_compiled_input_plan, compile_mapping_files
 from mapping_profiles import (
@@ -21,6 +22,12 @@ DEVICE_PROFILE_PATH = ROOT / "profiles" / "devices" / "keyboard_default.yaml"
 CONTROLLER_PROFILE_PATH = ROOT / "profiles" / "controllers" / "arcade_2button.yaml"
 GAME_ACTION_PROFILE_PATH = ROOT / "profiles" / "games" / "gngb" / "default_actions.yaml"
 INPUT_SEQUENCE_PATH = ROOT / "plans" / "sequences" / "gng_smoke_sequence.yaml"
+GNG_BOOT_SEQUENCE_PATH = ROOT / "plans" / "sequences" / "gng_boot_only.yaml"
+GNG_GAMEPLAY_SEQUENCE_PATH = ROOT / "plans" / "sequences" / "gng_gameplay.yaml"
+LEGACY_GNG_BOOT_PLAN_PATH = ROOT / "plans" / "gng_boot_only.yaml"
+LEGACY_GNG_GAMEPLAY_PLAN_PATH = ROOT / "plans" / "gng_gameplay.yaml"
+GENERATED_GNG_BOOT_PLAN_PATH = ROOT / "plans" / "generated" / "gng_boot_only.yaml"
+GENERATED_GNG_GAMEPLAY_PLAN_PATH = ROOT / "plans" / "generated" / "gng_gameplay.yaml"
 
 
 def test_sample_profiles_compile_smoke_sequence(tmp_path: Path) -> None:
@@ -162,6 +169,67 @@ def test_generated_yaml_is_parseable_by_existing_input_planner(tmp_path: Path) -
     assert len(payload["steps"]) == len(compiled_plan.steps)
 
 
+@pytest.mark.parametrize(
+    ("sequence_path", "legacy_plan_path"),
+    [
+        (GNG_BOOT_SEQUENCE_PATH, LEGACY_GNG_BOOT_PLAN_PATH),
+        (GNG_GAMEPLAY_SEQUENCE_PATH, LEGACY_GNG_GAMEPLAY_PLAN_PATH),
+    ],
+)
+def test_gng_runtime_sequences_compile_to_legacy_plan_steps(
+    tmp_path: Path,
+    sequence_path: Path,
+    legacy_plan_path: Path,
+) -> None:
+    output_path = tmp_path / "plans" / "generated" / sequence_path.name
+
+    compile_mapping_files(
+        device_profile_path=DEVICE_PROFILE_PATH,
+        controller_profile_path=CONTROLLER_PROFILE_PATH,
+        game_action_profile_path=GAME_ACTION_PROFILE_PATH,
+        input_sequence_path=sequence_path,
+        output_path=output_path,
+    )
+
+    compiled_plan = load_input_plan(output_path)
+    legacy_plan = load_input_plan(legacy_plan_path)
+
+    assert _plan_steps(compiled_plan) == _plan_steps(legacy_plan)
+
+
+@pytest.mark.parametrize(
+    ("generated_plan_path", "legacy_plan_path"),
+    [
+        (GENERATED_GNG_BOOT_PLAN_PATH, LEGACY_GNG_BOOT_PLAN_PATH),
+        (GENERATED_GNG_GAMEPLAY_PLAN_PATH, LEGACY_GNG_GAMEPLAY_PLAN_PATH),
+    ],
+)
+def test_checked_in_generated_gng_runtime_plans_match_legacy_behavior(
+    generated_plan_path: Path,
+    legacy_plan_path: Path,
+) -> None:
+    generated_plan = load_input_plan(generated_plan_path)
+    legacy_plan = load_input_plan(legacy_plan_path)
+
+    assert _plan_steps(generated_plan) == _plan_steps(legacy_plan)
+
+
+@pytest.mark.parametrize(
+    "generated_plan_path",
+    [
+        GENERATED_GNG_BOOT_PLAN_PATH,
+        GENERATED_GNG_GAMEPLAY_PLAN_PATH,
+    ],
+)
+def test_checked_in_generated_gng_runtime_plans_use_public_safe_paths_and_payloads(
+    generated_plan_path: Path,
+) -> None:
+    ensure_public_output_path(generated_plan_path)
+
+    payload = yaml.safe_load(generated_plan_path.read_text(encoding="utf-8"))
+    ensure_no_private_paths(payload)
+
+
 def test_compiler_rejects_unsafe_public_output_path(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="blocked public output directory"):
         compile_mapping_files(
@@ -177,3 +245,11 @@ def _load_typed(path: Path, expected_type: type[object]) -> DeviceProfile | Cont
     loaded = load_mapping_profile(path)
     assert isinstance(loaded, expected_type)
     return loaded
+
+
+def _plan_steps(plan: object) -> list[tuple[str, int, str]]:
+    assert hasattr(plan, "steps")
+    return [
+        (step.action, step.frames, step.notes)
+        for step in plan.steps
+    ]

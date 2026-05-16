@@ -198,13 +198,13 @@ Full pipeline commands:
 
 ```bash
 apps/mame-harness/.venv/bin/python apps/mame-harness/cli.py init
-apps/mame-harness/.venv/bin/python apps/mame-harness/cli.py run --rom gng --rom-path /path/to/roms --input-plan plans/gng_gameplay.yaml --frames-to-run 300
+apps/mame-harness/.venv/bin/python apps/mame-harness/cli.py run --rom gng --rom-path /path/to/roms --input-plan plans/generated/gng_gameplay.yaml --frames-to-run 300
 apps/mame-harness/.venv/bin/python apps/mame-harness/cli.py analyze-placeholder \
   --run-id <run-id> \
   --output specs/entities/entity_candidates.generated.json
 apps/mame-harness/.venv/bin/python apps/mame-harness/cli.py extract-trace \
   --run-id <run-id> \
-  --input-plan plans/gng_gameplay.yaml \
+  --input-plan plans/generated/gng_gameplay.yaml \
   --output specs/traces/gng_trace.json
 apps/mame-harness/.venv/bin/python apps/mame-harness/cli.py generate-asset-recipes-placeholder --entity-candidates specs/entities/entity_candidates.generated.json
 apps/mame-harness/.venv/bin/python apps/mame-harness/cli.py validate-placeholder \

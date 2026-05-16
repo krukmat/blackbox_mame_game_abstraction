@@ -8,6 +8,6 @@ mame_binary: mame
 ffmpeg_binary: ffmpeg
 rom_path: REPLACE_ME_PRIVATE_ROM_DIR
 evidence_root: evidence/private
-boot_plan: plans/gng_boot_only.yaml
-trace_input_plan: plans/gng_gameplay.yaml
+boot_plan: plans/generated/gng_boot_only.yaml
+trace_input_plan: plans/generated/gng_gameplay.yaml
 trace_output: specs/traces/gng_trace.json

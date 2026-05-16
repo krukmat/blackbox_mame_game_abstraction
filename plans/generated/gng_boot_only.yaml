@@ -1,0 +1,21 @@
+plan_name: gng_boot_only
+game_id: gngb
+steps:
+- action: noop
+  frames: 950
+  notes: 'Boot: RAM/ROM check + attract mode. No input. ~15.9s at 59.64fps.'
+- action: insert_coin
+  frames: 10
+  notes: Insert coin. Attract mode must be showing coin prompt by frame 950.
+- action: noop
+  frames: 60
+  notes: Wait for 1P start prompt to appear on screen.
+- action: press_start
+  frames: 5
+  notes: Press 1P start.
+- action: noop
+  frames: 480
+  notes: Title transition + stage 1 intro. Arthur walks in and kneels. ~8s.
+- action: noop
+  frames: 9999
+  notes: Arthur is controllable. User plays from here. Noop = no injected input.

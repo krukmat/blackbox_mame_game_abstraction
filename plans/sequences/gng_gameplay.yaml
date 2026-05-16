@@ -1,0 +1,62 @@
+schema_version: 1
+profile_type: input_sequence
+sequence_type: input_sequence
+id: gng_gameplay
+steps:
+  - control: noop
+    frames: 950
+    notes: "Wait for attract mode — real boot takes ~930 frames measured from run_e275390ad208."
+  - control: select
+    frames: 10
+    notes: "Insert coin once attract mode coin prompt is showing."
+  - control: noop
+    frames: 60
+    notes: "Wait for 1-player start prompt to appear."
+  - control: start
+    frames: 5
+    notes: "Start 1-player game."
+  - control: noop
+    frames: 480
+    notes: "Wait for title transition + stage 1 intro before Arthur is controllable (~8s at 60fps)."
+  - control: dpad_right
+    frames: 60
+    notes: "Locomotion: walk right — covers walking_right state and movement_start/stop events."
+  - control: south
+    frames: 30
+    notes: "Jump arc: full trajectory — ascending, jump_peak, descending, land events."
+  - control: dpad_right
+    frames: 40
+    notes: "Locomotion: continue right after landing."
+  - control: east
+    frames: 20
+    notes: "Projectile: throw lance — in_flight state, fire event, spawn_delay_frames."
+  - control: noop
+    frames: 30
+    notes: "Observe projectile travel and despawn."
+  - control: dpad_right
+    frames: 60
+    notes: "Continue locomotion."
+  - control: south
+    frames: 30
+    notes: "Second jump — confirm arc reproducibility."
+  - control: east
+    frames: 20
+    notes: "Second fire — confirm projectile timing."
+  - control: dpad_right
+    frames: 60
+    notes: "Continue locomotion for entity event observation."
+  - control: south
+    frames: 30
+    notes: "Third jump while moving — combined locomotion+jump state."
+  - control: noop
+    frames: 40
+    notes: "Settle and observe any enemy entity events."
+  - control: east
+    frames: 20
+    notes: "Third fire — additional projectile evidence."
+  - control: dpad_right
+    frames: 60
+    notes: "Final locomotion stretch."
+  - control: noop
+    frames: 40
+    notes: "End observation window."

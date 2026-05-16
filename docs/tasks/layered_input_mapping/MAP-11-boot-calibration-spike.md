@@ -8,7 +8,7 @@ Completed — 2026-05-16
 
 Design a calibration spike that reduces fragile hand-authored boot timing in the MAME harness without weakening the clean-room boundary and without introducing public visual artifacts.
 
-`MAP-03` through `MAP-10` stabilized the layered input mapping model, import paths, and manual wizard flow. The remaining gap in this phase is still operational: boot timing is brittle and currently depends on fixed frame counts in authored plans such as `plans/gng_boot_only.yaml`.
+`MAP-03` through `MAP-10` stabilized the layered input mapping model, import paths, and manual wizard flow. The remaining gap in this phase is still operational: boot timing is brittle and currently depends on fixed frame counts carried through the GNG layered sequence and generated-plan path.
 
 This task is a spike first, not a production rewrite. Its job is to define what a safe calibration workflow would look like, what public outputs are allowed, what must remain private, and whether a follow-up implementation requires another ADR.
 
@@ -59,8 +59,10 @@ Reasoning basis:
   - `scripts/launch_manual_capture_autoboot.sh`
   - `scripts/mame_autoboot.lua`
 - existing boot/input plans:
-  - `plans/gng_boot_only.yaml`
-  - `plans/gng_gameplay.yaml`
+  - `plans/sequences/gng_boot_only.yaml`
+  - `plans/sequences/gng_gameplay.yaml`
+  - `plans/generated/gng_boot_only.yaml`
+  - `plans/generated/gng_gameplay.yaml`
 - prior timing-related task context:
   - `docs/tasks/gng_source_integration/T10.3-timing-calibration.md`
 

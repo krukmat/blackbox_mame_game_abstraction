@@ -95,3 +95,13 @@ After `doctor` passes:
 ```
 
 Those scripts read `.env` automatically. They no longer assume a machine-specific MAME binary or ROM path, but they still enforce that evidence stays under `evidence/private`.
+
+For GNG, the runtime-facing defaults now point at generated plans:
+
+- `BLACKBOX_BOOT_PLAN=plans/generated/gng_boot_only.yaml`
+- `BLACKBOX_TRACE_INPUT_PLAN=plans/generated/gng_gameplay.yaml`
+
+The editable layered source of truth remains:
+
+- `plans/sequences/gng_boot_only.yaml`
+- `plans/sequences/gng_gameplay.yaml`

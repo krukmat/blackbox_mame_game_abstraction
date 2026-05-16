@@ -1,0 +1,23 @@
+schema_version: 1
+profile_type: input_sequence
+sequence_type: input_sequence
+id: gng_boot_only
+steps:
+  - control: noop
+    frames: 950
+    notes: "Boot: RAM/ROM check + attract mode. No input. ~15.9s at 59.64fps."
+  - control: select
+    frames: 10
+    notes: "Insert coin. Attract mode must be showing coin prompt by frame 950."
+  - control: noop
+    frames: 60
+    notes: "Wait for 1P start prompt to appear on screen."
+  - control: start
+    frames: 5
+    notes: "Press 1P start."
+  - control: noop
+    frames: 480
+    notes: "Title transition + stage 1 intro. Arthur walks in and kneels. ~8s."
+  - control: noop
+    frames: 9999
+    notes: "Arthur is controllable. User plays from here. Noop = no injected input."

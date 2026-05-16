@@ -1,0 +1,63 @@
+plan_name: gng_gameplay
+game_id: gngb
+steps:
+- action: noop
+  frames: 950
+  notes: "Wait for attract mode \u2014 real boot takes ~930 frames measured from run_e275390ad208."
+- action: insert_coin
+  frames: 10
+  notes: Insert coin once attract mode coin prompt is showing.
+- action: noop
+  frames: 60
+  notes: Wait for 1-player start prompt to appear.
+- action: press_start
+  frames: 5
+  notes: Start 1-player game.
+- action: noop
+  frames: 480
+  notes: Wait for title transition + stage 1 intro before Arthur is controllable (~8s
+    at 60fps).
+- action: move_right
+  frames: 60
+  notes: "Locomotion: walk right \u2014 covers walking_right state and movement_start/stop\
+    \ events."
+- action: jump
+  frames: 30
+  notes: "Jump arc: full trajectory \u2014 ascending, jump_peak, descending, land\
+    \ events."
+- action: move_right
+  frames: 40
+  notes: 'Locomotion: continue right after landing.'
+- action: fire
+  frames: 20
+  notes: "Projectile: throw lance \u2014 in_flight state, fire event, spawn_delay_frames."
+- action: noop
+  frames: 30
+  notes: Observe projectile travel and despawn.
+- action: move_right
+  frames: 60
+  notes: Continue locomotion.
+- action: jump
+  frames: 30
+  notes: "Second jump \u2014 confirm arc reproducibility."
+- action: fire
+  frames: 20
+  notes: "Second fire \u2014 confirm projectile timing."
+- action: move_right
+  frames: 60
+  notes: Continue locomotion for entity event observation.
+- action: jump
+  frames: 30
+  notes: "Third jump while moving \u2014 combined locomotion+jump state."
+- action: noop
+  frames: 40
+  notes: Settle and observe any enemy entity events.
+- action: fire
+  frames: 20
+  notes: "Third fire \u2014 additional projectile evidence."
+- action: move_right
+  frames: 60
+  notes: Final locomotion stretch.
+- action: noop
+  frames: 40
+  notes: End observation window.

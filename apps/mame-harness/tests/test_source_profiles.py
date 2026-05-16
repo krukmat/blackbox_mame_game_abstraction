@@ -20,7 +20,7 @@ def test_gng_profile_encodes_the_local_driver_contract() -> None:
 def test_gng_profile_includes_base_capture_parameters() -> None:
     profile = get_source_profile("gng")
 
-    assert profile.base_input_plan == Path("plans/basic_controls.yaml")
+    assert profile.base_input_plan == Path("plans/generated/gng_boot_only.yaml")
     assert profile.default_frames_to_run == 300
     assert profile.autoboot_script == Path("scripts/mame_autoboot.lua")
     assert profile.private_usage_only is True

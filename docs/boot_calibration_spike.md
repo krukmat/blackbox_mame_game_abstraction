@@ -18,10 +18,12 @@ The spike defines:
 
 ## Current Timing Problem
 
-The current boot flow depends on fixed frame counts copied into multiple public places:
+The current boot flow still depends on fixed frame counts, but the adopted GNG path is now layered:
 
-- [plans/gng_boot_only.yaml](/Users/matiasleandrokruk/Documents/blackbox_mame_game_abstraction/plans/gng_boot_only.yaml)
-- [plans/gng_gameplay.yaml](/Users/matiasleandrokruk/Documents/blackbox_mame_game_abstraction/plans/gng_gameplay.yaml)
+- [plans/sequences/gng_boot_only.yaml](/Users/matiasleandrokruk/Documents/blackbox_mame_game_abstraction/plans/sequences/gng_boot_only.yaml)
+- [plans/sequences/gng_gameplay.yaml](/Users/matiasleandrokruk/Documents/blackbox_mame_game_abstraction/plans/sequences/gng_gameplay.yaml)
+- [plans/generated/gng_boot_only.yaml](/Users/matiasleandrokruk/Documents/blackbox_mame_game_abstraction/plans/generated/gng_boot_only.yaml)
+- [plans/generated/gng_gameplay.yaml](/Users/matiasleandrokruk/Documents/blackbox_mame_game_abstraction/plans/generated/gng_gameplay.yaml)
 - [scripts/launch_manual_capture_autoboot.sh](/Users/matiasleandrokruk/Documents/blackbox_mame_game_abstraction/scripts/launch_manual_capture_autoboot.sh)
 - [docs/bootstrap.md](/Users/matiasleandrokruk/Documents/blackbox_mame_game_abstraction/docs/bootstrap.md)
 - [CLAUDE.md](/Users/matiasleandrokruk/Documents/blackbox_mame_game_abstraction/CLAUDE.md)
@@ -36,7 +38,7 @@ Today those timings are:
 
 This is brittle for four reasons:
 
-1. The timing is game-specific and driver-specific, but it is duplicated across plans, scripts, and docs.
+1. The timing is game-specific and driver-specific, and it is still duplicated across generated plans, helper surfaces, and docs.
 2. A small drift in attract-mode length, intro timing, or emulator setup can invalidate the authored waits.
 3. The current workflow has no first-class calibration artifact; timing is embedded inside executable plans.
 4. Any attempt to "improve" this naively can slip into public screenshots, frame references, or pixel-matching heuristics.
@@ -48,9 +50,18 @@ This is brittle for four reasons:
 - [apps/mame-harness/guardrails.py](/Users/matiasleandrokruk/Documents/blackbox_mame_game_abstraction/apps/mame-harness/guardrails.py)
 - [scripts/launch_manual_capture_autoboot.sh](/Users/matiasleandrokruk/Documents/blackbox_mame_game_abstraction/scripts/launch_manual_capture_autoboot.sh)
 - [scripts/mame_autoboot.lua](/Users/matiasleandrokruk/Documents/blackbox_mame_game_abstraction/scripts/mame_autoboot.lua)
-- [plans/gng_boot_only.yaml](/Users/matiasleandrokruk/Documents/blackbox_mame_game_abstraction/plans/gng_boot_only.yaml)
-- [plans/gng_gameplay.yaml](/Users/matiasleandrokruk/Documents/blackbox_mame_game_abstraction/plans/gng_gameplay.yaml)
+- [plans/sequences/gng_boot_only.yaml](/Users/matiasleandrokruk/Documents/blackbox_mame_game_abstraction/plans/sequences/gng_boot_only.yaml)
+- [plans/sequences/gng_gameplay.yaml](/Users/matiasleandrokruk/Documents/blackbox_mame_game_abstraction/plans/sequences/gng_gameplay.yaml)
+- [plans/generated/gng_boot_only.yaml](/Users/matiasleandrokruk/Documents/blackbox_mame_game_abstraction/plans/generated/gng_boot_only.yaml)
+- [plans/generated/gng_gameplay.yaml](/Users/matiasleandrokruk/Documents/blackbox_mame_game_abstraction/plans/generated/gng_gameplay.yaml)
 - [docs/bootstrap.md](/Users/matiasleandrokruk/Documents/blackbox_mame_game_abstraction/docs/bootstrap.md)
+
+Historical note:
+
+- `plans/gng_boot_only.yaml`
+- `plans/gng_gameplay.yaml`
+
+Those legacy authored semantic plans are retained as migration references. They are no longer the canonical operational path after GNG layered mapping adoption.
 
 The existing execution boundary must stay intact:
 

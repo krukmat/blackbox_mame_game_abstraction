@@ -55,7 +55,7 @@ The user plays GNG while MAME records an AVI. The agent handles the full boot se
 |------|-------|
 | Source profile | `gng` |
 | Driver | `gngb` |
-| Boot plan | `plans/gng_boot_only.yaml` |
+| Boot plan | `plans/generated/gng_boot_only.yaml` |
 | Lua script | `scripts/mame_autoboot.lua` |
 | Local config docs | `docs/bootstrap.md` |
 | Local env example | `.env.example` |
@@ -79,7 +79,7 @@ The user plays GNG while MAME records an AVI. The agent handles the full boot se
 ```
 
 This script:
-1. Exports `plans/gng_boot_only.yaml` → `evidence/private/run_<id>/logs/input_plan.json`
+1. Exports `plans/generated/gng_boot_only.yaml` → `evidence/private/run_<id>/logs/input_plan.json`
 2. Launches MAME with `-autoboot_script scripts/mame_autoboot.lua`
 3. Lua injects coin + start at the correct frames
 4. After frame 1505, noop frames → user's keyboard takes over naturally
@@ -122,8 +122,8 @@ This script:
 
 | Plan | Purpose |
 |------|---------|
-| `plans/gng_boot_only.yaml` | Boot only — coin + start + intro wait, then noop forever |
-| `plans/gng_gameplay.yaml` | Full automated gameplay — used for non-interactive captures |
+| `plans/generated/gng_boot_only.yaml` | Runtime boot plan — coin + start + intro wait, then noop forever |
+| `plans/generated/gng_gameplay.yaml` | Runtime gameplay plan — used for non-interactive captures |
 
 ## Python Environment
 

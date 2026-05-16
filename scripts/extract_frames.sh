@@ -15,7 +15,7 @@ if [ -f "${ROOT}/.env" ]; then
 fi
 
 FFMPEG_BINARY="${BLACKBOX_FFMPEG_BINARY:-ffmpeg}"
-TRACE_INPUT_PLAN="${BLACKBOX_TRACE_INPUT_PLAN:-plans/gng_gameplay.yaml}"
+TRACE_INPUT_PLAN="${BLACKBOX_TRACE_INPUT_PLAN:-plans/generated/gng_gameplay.yaml}"
 TRACE_OUTPUT="${BLACKBOX_TRACE_OUTPUT:-specs/traces/gng_trace.json}"
 REL_EVIDENCE_ROOT="${BLACKBOX_EVIDENCE_ROOT:-evidence/private}"
 REL_EVIDENCE_ROOT="${REL_EVIDENCE_ROOT#./}"

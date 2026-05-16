@@ -11,7 +11,7 @@
 #   Default run_id: manual_01
 #
 # WHAT THIS DOES:
-#   1. Exports plans/gng_boot_only.yaml to a temporary JSON (Lua reads this)
+#   1. Exports plans/generated/gng_boot_only.yaml to a temporary JSON (Lua reads this)
 #   2. Creates evidence/private/run_<id>/ directory layout
 #   3. Launches MAME with -autoboot_script pointing to mame_autoboot.lua
 #   4. The Lua script injects coin + start inputs at the correct frames
@@ -42,7 +42,7 @@ VENV="${ROOT}/apps/mame-harness/.venv/bin/python"
 MAME_BINARY="${BLACKBOX_MAME_BINARY:-mame}"
 ROM_PATH="${BLACKBOX_ROM_PATH:-}"
 MAME_DRIVER="${BLACKBOX_MAME_DRIVER:-gngb}"
-BOOT_PLAN="${BLACKBOX_BOOT_PLAN:-plans/gng_boot_only.yaml}"
+BOOT_PLAN="${BLACKBOX_BOOT_PLAN:-plans/generated/gng_boot_only.yaml}"
 REL_EVIDENCE_ROOT="${BLACKBOX_EVIDENCE_ROOT:-evidence/private}"
 REL_EVIDENCE_ROOT="${REL_EVIDENCE_ROOT#./}"
 
