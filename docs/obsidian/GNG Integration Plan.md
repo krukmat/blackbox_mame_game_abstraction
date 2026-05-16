@@ -51,11 +51,19 @@ Make `gng.zip` (Ghosts'n Goblins) a reproducible, legally bounded observation so
 | T10.5-C.4.c.2.a | Last-entry target resolution | ✅ Done |
 | T10.5-C.4.c.2.b | Die event mutation + dedup | ✅ Done |
 | T10.5-E | Regenerate specs/traces/gng_trace.json | ✅ Done |
+| T10.6 | OpenCV Vision Backend — background subtraction, HUD mask, gap tolerance | 🔲 Planned |
+| T10.6-A | Adapter interface + OpenCV install | 🔲 Planned |
+| T10.6-B | HUD ROI masking | 🔲 Planned |
+| T10.6-C | cv2.connectedComponentsWithStats contour extraction | 🔲 Planned |
+| T10.6-D | MOG2 background subtraction | 🔲 Planned |
+| T10.6-E | Player gap tolerance | 🔲 Planned |
+| T10.6-F | Trace regeneration + quality validation | 🔲 Planned |
+| T10.4 | Public Artifact Generation + Guardrails Verification | 🔲 Planned |
 | T11 | RN Prototype Hookup | 🔲 Planned |
 
 ## Dependency Order
 
-T01 → T02 → T03 → T04 → T05 → T06 → T07 → T08 → T09 → T10.1 → T10.2 → T10.3 → T10.5-D → T10.5-A → T10.5-B → T10.5-C.1 → T10.5-C.2 → T10.5-C.3 → T10.5-C.4.a → T10.5-C.4.b → T10.5-C.4.c.1 → T10.5-C.4.c.2.a → T10.5-C.4.c.2.b → T10.5-E → T10.4 → T11
+T01 → T02 → T03 → T04 → T05 → T06 → T07 → T08 → T09 → T10.1 → T10.2 → T10.3 → T10.5-D → T10.5-A → T10.5-B → T10.5-C.1 → T10.5-C.2 → T10.5-C.3 → T10.5-C.4.a → T10.5-C.4.b → T10.5-C.4.c.1 → T10.5-C.4.c.2.a → T10.5-C.4.c.2.b → T10.5-E → T10.6-A → T10.6-B → T10.6-C → T10.6-D → T10.6-E → T10.6-F → T10.4 → T11
 
 Each task depends on the stabilized contract from all prior tasks.
 

@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from input_planner import InputPlan
     from behavioral_diff import TraceEntry
+    from gng_vision_config import GNGVisionConfig
 
 # ---------------------------------------------------------------------------
 # Threshold constants — T10.2.2.1 Rule 2
@@ -231,6 +232,7 @@ def extract_trace(
     input_plan: "InputPlan",
     frame_width: int = 256,
     frame_height: int = 224,
+    config: "GNGVisionConfig | None" = None,
 ) -> list["TraceEntry"]:
     """Assemble a list of TraceEntry records from FrameDiffStat + InputPlan.
 
@@ -245,6 +247,9 @@ def extract_trace(
     input_by_frame: dict[int, str] = {fi.frame_index: fi.action for fi in frame_inputs}
     legacy_aggregate_compat = input_plan.game_id == "gng"
 
+    # T10.6-E: player_gap_tolerance from config (0 = original immediate-die behavior)
+    player_gap_tolerance: int = config.player_gap_tolerance if config is not None else 0
+
     entries: list[TraceEntry] = []
     tracker = ArthurTracker()
     sig = ArthurSignature()
@@ -256,6 +261,13 @@ def extract_trace(
     # T10.5-C.4.a: presence bookkeeping keyed by entity_id (not entity_type).
     # Key: entity_id (e.g. "player", "enemy_a_5"), value: last seen frame index.
     prev_seen_by_id: dict[str, int] = {}
+
+    # T10.6-E: consecutive absent-frame counter for "player" only.
+    # Incremented each frame the player is not detected; reset to 0 on detection.
+    player_gap_counter: int = 0
+    # T10.6-E: last frame where the player was *actually* detected (not slid forward).
+    # Used to stamp the "die" event on the correct real entry when the gap exceeds tolerance.
+    player_last_real_frame: int = -1
 
     for curr_stat in diff_stats:
         action = input_by_frame.get(curr_stat.start_frame, "noop")
@@ -272,14 +284,31 @@ def extract_trace(
                 etype = _entity_type_from_box(region, frame_width, frame_height)
                 current_frame_ids.add(_entity_id_from_type(etype, curr_stat.start_frame, ri))
 
+        # T10.6-E: update player gap counter before disappearance logic
+        if "player" in current_frame_ids:
+            player_gap_counter = 0
+        elif "player" in prev_seen_by_id:
+            player_gap_counter += 1
+
         for eid, last_frame in list(prev_seen_by_id.items()):
             if last_frame == curr_stat.start_frame - 1 and eid not in current_frame_ids:
+                # T10.6-E: for "player", suppress die if within gap tolerance window
+                if eid == "player" and player_gap_counter <= player_gap_tolerance:
+                    # Hold — slide last_frame forward so next iteration re-enters this branch.
+                    prev_seen_by_id[eid] = curr_stat.start_frame
+                    continue
+
+                # Emit die on the last *real* detection frame (not the slid frame).
+                die_frame = player_last_real_frame if eid == "player" and player_last_real_frame >= 0 else last_frame
                 for entry in reversed(entries):
-                    if entry.entity_id == eid and entry.frame == last_frame:
+                    if entry.entity_id == eid and entry.frame == die_frame:
                         if "die" not in entry.events:
                             entry.events.append("die")
                         break
                 del prev_seen_by_id[eid]
+                if eid == "player":
+                    player_gap_counter = 0
+                    player_last_real_frame = -1
 
         if not curr_stat.changed_regions:
             continue
@@ -333,6 +362,8 @@ def extract_trace(
                     events.insert(0, "spawn")
 
             prev_seen_by_id[entity_id] = curr_stat.start_frame
+            if entity_id == "player":  # T10.6-E: track actual detection frame for die stamping
+                player_last_real_frame = curr_stat.start_frame
 
             entries.append(TraceEntry(
                 frame=curr_stat.start_frame,

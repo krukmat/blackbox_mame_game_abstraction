@@ -129,11 +129,20 @@ def test_frame_differ_works_with_png_manifest(tmp_path: Path) -> None:
 
 def test_extract_run_trace_writes_public_trace_from_png_sequence(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setattr(vision_pipeline, "ROOT", tmp_path)
+    # T10.6-E: override production config so small test blobs (area=4) pass the filter
+    from gng_vision_config import GNGVisionConfig
+    monkeypatch.setattr(vision_pipeline, "_GNG_CONFIG", GNGVisionConfig(min_contour_area=4))
 
     extracted_dir = tmp_path / "evidence" / "private" / "run_demo" / "frames" / "extracted_png"
     extracted_dir.mkdir(parents=True)
-    _write_png(extracted_dir / "0000.png", [[0, 0], [0, 0]])
-    _write_png(extracted_dir / "0001.png", [[0, 255], [0, 0]])
+    blank = [[0] * 8 for _ in range(8)]
+    # T10.6-C: OpenCVBackend requires min_contour_area=4 — use 2x2 blob (area=4)
+    frame1 = [row[:] for row in blank]
+    for ry in (1, 2):
+        for rx in (1, 2):
+            frame1[ry][rx] = 255
+    _write_png(extracted_dir / "0000.png", blank)
+    _write_png(extracted_dir / "0001.png", frame1)
 
     input_plan = tmp_path / "plans" / "demo.yaml"
     input_plan.parent.mkdir(parents=True)

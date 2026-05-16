@@ -9,12 +9,15 @@ if str(VISION_DIR) not in sys.path:
     sys.path.insert(0, str(VISION_DIR))
 
 from entity_candidate_builder import EntityCandidateBuilder
-from frame_differ import FrameDiffer
+from frame_differ import FrameDiffer, OpenCVBackend
 from frame_manifest import FrameManifest
 from fps_calibration import GNG_MS_PER_FRAME, ms_per_frame_from_fps, read_avi_fps  # T10.3
+from gng_vision_config import GNGVisionConfig
 from input_planner import load_input_plan
 from trace_extractor import extract_trace
 from behavioral_diff import write_trace_output
+
+_GNG_CONFIG = GNGVisionConfig()  # T10.6-C: game-specific vision config for production runs
 
 
 def _resolve_frames_dir(run_id: str) -> Path:
@@ -42,7 +45,7 @@ def analyze_run_frames(run_id: str, output_path: Path) -> Path:
     frames_dir = _resolve_frames_dir(run_id)
     ms_per_frame = _resolve_ms_per_frame(run_id)  # T10.3
     manifest = FrameManifest.from_run(run_id=run_id, frames_dir=frames_dir, ms_per_frame=ms_per_frame)
-    differ = FrameDiffer()
+    differ = FrameDiffer(backend=OpenCVBackend(_GNG_CONFIG))  # T10.6-C
     diff_stats = differ.diff_manifest(manifest)
     builder = EntityCandidateBuilder()
     candidates = builder.build(diff_stats)
@@ -53,7 +56,7 @@ def extract_run_trace(run_id: str, input_plan_path: Path, output_path: Path) -> 
     frames_dir = _resolve_frames_dir(run_id)
     ms_per_frame = _resolve_ms_per_frame(run_id)  # T10.3
     manifest = FrameManifest.from_run(run_id=run_id, frames_dir=frames_dir, ms_per_frame=ms_per_frame)
-    diff_stats = FrameDiffer().diff_manifest(manifest)
+    diff_stats = FrameDiffer(backend=OpenCVBackend(_GNG_CONFIG)).diff_manifest(manifest)  # T10.6-C
     input_plan = load_input_plan(input_plan_path)
-    entries = extract_trace(diff_stats, input_plan)
+    entries = extract_trace(diff_stats, input_plan, config=_GNG_CONFIG)  # T10.6-E: gap tolerance
     return write_trace_output(entries, output_path)
