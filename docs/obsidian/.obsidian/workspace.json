@@ -185,9 +185,14 @@
   },
   "active": "900b4a0753972d55",
   "lastOpenFiles": [
+    "ADR-018 Boot Calibration Public Contract.md",
+    "ADR-017 Map Init Wizard.md",
+    "ADR-016 RetroArch Autoconfig Importer.md",
+    "ADR-015 SDL GameControllerDB Importer.md",
+    "ADR-014 Layered Input Mapping.md",
+    "ADR-013 OpenCV Vision Backend.md",
     "ADR-002 Private URI Scheme.md",
     "00 - Project Overview.md",
-    "ADR-013 OpenCV Vision Backend.md",
     "ADR-012 Entity Signature-Based Player Identification.md",
     "ADR-011 Mechanics-to-Scenario Transformation and Originality Validation.md"
   ]

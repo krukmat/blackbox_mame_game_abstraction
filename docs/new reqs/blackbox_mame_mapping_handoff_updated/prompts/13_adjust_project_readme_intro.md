@@ -1,6 +1,10 @@
 # Prompt 13 - Improve the Project README Introduction and Positioning
 
-Use this prompt as a separate documentation task after you have understood the repository. It can be executed independently from the mapping refactor, but it should preserve the architectural decisions introduced in ADR-0001.
+Use this prompt as a separate documentation task after you have understood the repository. It can be executed independently from the mapping refactor, but it should preserve the architectural decisions introduced in ADR-001 and the layered input mapping framing introduced in ADR-014.
+
+Task file:
+
+- `docs/tasks/repo_documentation/DOC-01-readme-introduction-and-positioning-refresh.md`
 
 ```text
 You are working on the repository `blackbox_mame_game_abstraction`.
@@ -16,8 +20,12 @@ Read first:
 - README.md
 - AGENTS.md
 - CLAUDE.md
-- docs/adr/ if present
-- docs/plans/ if present
+- docs/adr/ADR-001-clean-room-layered-architecture.md
+- docs/adr/ADR-003-public-output-blocklist.md
+- docs/adr/ADR-005-source-profile-pattern.md
+- docs/adr/ADR-014-layered-input-mapping.md
+- docs/plans/layered_input_mapping_plan.md
+- docs/obsidian/00 - Project Overview.md
 - apps/mame-harness/guardrails.py
 - apps/mame-harness/input_planner.py
 - packages/vision/ if present
@@ -35,7 +43,7 @@ Current README context to preserve:
 - The intended downstream use is an independent implementation with original art, a new theme, and a new identity.
 
 Specific problem to fix:
-The current README is technically useful, but the opening is still too compressed. A new reader may not immediately understand what the project contributes compared with MAME, RetroArch, BizHawk, Gym Retro, AntiMicroX, or a normal emulator frontend.
+The current README already explains the project at a high level, but a new reader may still miss the repo's specific contribution compared with MAME, RetroArch, BizHawk, Gym Retro, AntiMicroX, or a normal emulator frontend. Tighten the opening so the differentiation is explicit earlier, while preserving the current clean-room framing and verified project status.
 
 Add a clearer introduction that explains:
 

@@ -1,0 +1,27 @@
+schema_version: 1
+profile_type: game_action_profile
+id: gngb_default_actions
+source_profile: gng
+driver: gngb
+canonical_to_action:
+  dpad_left: move_left
+  dpad_right: move_right
+  dpad_up: move_up
+  dpad_down: move_down
+  south: jump
+  east: fire
+  start: press_start
+  select: insert_coin
+  noop: noop
+allowed_actions:
+  - noop
+  - insert_coin
+  - press_start
+  - move_left
+  - move_right
+  - move_up
+  - move_down
+  - jump
+  - fire
+metadata:
+  clean_room_safe: true

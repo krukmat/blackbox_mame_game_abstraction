@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Controller Profile",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "profile_type",
+    "id",
+    "canonical_controls",
+    "constraints",
+    "metadata"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "profile_type": { "const": "controller_profile" },
+    "id": { "type": "string" },
+    "canonical_controls": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string" }
+    },
+    "constraints": {
+      "type": "object",
+      "required": ["required", "optional"],
+      "properties": {
+        "required": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "optional": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["clean_room_safe"],
+      "properties": {
+        "clean_room_safe": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

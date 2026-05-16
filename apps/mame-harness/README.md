@@ -16,10 +16,19 @@ Activate the Python 3.11 virtualenv before running any command:
 source apps/mame-harness/.venv/bin/activate
 ```
 
+Before real capture or frame extraction, configure local-only bootstrap settings and run:
+
+```bash
+cp .env.example .env
+apps/mame-harness/.venv/bin/python apps/mame-harness/cli.py doctor
+```
+
+`doctor` checks MAME, ffmpeg, ROM-path configuration, and writable private evidence directories without printing local machine paths.
+
 ### Dry-run with GNG source profile (no ROM required)
 
 ```bash
-python apps/mame-harness/cli.py run \
+apps/mame-harness/.venv/bin/python apps/mame-harness/cli.py run \
   --rom gngb \
   --source-profile gng \
   --dry-run
@@ -28,7 +37,7 @@ python apps/mame-harness/cli.py run \
 ### Real run with GNG source profile
 
 ```bash
-python apps/mame-harness/cli.py run \
+apps/mame-harness/.venv/bin/python apps/mame-harness/cli.py run \
   --rom gngb \
   --source-profile gng \
   --rom-path <path-to-roms> \

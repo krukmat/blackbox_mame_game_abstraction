@@ -1,0 +1,20 @@
+schema_version: 1
+profile_type: device_profile
+id: keyboard_default
+source: manual
+device:
+  kind: keyboard
+  name: Default Keyboard
+  guid: null
+raw_to_canonical:
+  ArrowLeft: dpad_left
+  ArrowRight: dpad_right
+  ArrowUp: dpad_up
+  ArrowDown: dpad_down
+  KeyZ: south
+  KeyX: east
+  Enter: start
+  ShiftRight: select
+metadata:
+  created_by: bootstrap
+  clean_room_safe: true

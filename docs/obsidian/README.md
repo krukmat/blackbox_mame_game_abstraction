@@ -39,6 +39,12 @@ This directory is an Obsidian vault for the project. Open `docs/obsidian/` as a 
 - [[ADR-010 Public Original Game Definition Layer]]
 - [[ADR-011 Mechanics-to-Scenario Transformation and Originality Validation]]
 - [[ADR-012 Entity Signature-Based Player Identification]]
+- [[ADR-013 OpenCV Vision Backend]]
+- [[ADR-014 Layered Input Mapping]]
+- [[ADR-015 SDL GameControllerDB Importer]]
+- [[ADR-016 RetroArch Autoconfig Importer]]
+- [[ADR-017 Map Init Wizard]]
+- [[ADR-018 Boot Calibration Public Contract]]
 
 ## Full ADRs
 

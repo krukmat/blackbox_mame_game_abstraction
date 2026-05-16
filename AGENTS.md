@@ -68,6 +68,13 @@ Add tests for:
 - No unnecessary ML dependencies in early phases
 - Prefer interfaces and placeholders over speculative complexity
 
+## Python Environment
+
+- Always use the project virtualenv.
+- Never invoke bare `python`, `python3`, or `pytest` for repo work.
+- Use `apps/mame-harness/.venv/bin/python` and `apps/mame-harness/.venv/bin/pytest`, or activate `apps/mame-harness/.venv/` first.
+- The project runtime is Python 3.11 from the harness virtualenv. System interpreters may be a different version and are not valid for execution or test verification.
+
 ## Architecture Decision Records
 
 Read the ADRs in `docs/adr/` before analyzing or implementing any feature that touches the boundaries they describe. The ADRs are the authoritative record of why the system is structured as it is.
@@ -89,6 +96,11 @@ Read the ADRs in `docs/adr/` before analyzing or implementing any feature that t
 | ADR-011 | Mechanics-to-scenario transformation and originality validation | T12 encounter grammar, scene recipes, validation gates |
 | ADR-012 | Entity signature-based player identification; multi-region FrameDiffer; ArthurTracker | `packages/vision/frame_differ.py`, `packages/vision/arthur_tracker.py`, `packages/vision/trace_extractor.py` |
 | ADR-013 | OpenCV as replaceable vision backend; MOG2 background subtraction; HUD masking; player gap tolerance | `packages/vision/frame_differ.py`, `packages/vision/gng_vision_config.py`, `packages/vision/trace_extractor.py` |
+| ADR-014 | Layered input mapping compatibility layer compiled to the existing input-plan pipeline | `input_planner.py`, mapping profiles/compiler, future `map` CLI commands |
+| ADR-015 | SDL GameControllerDB importer to `device_profile` YAML with explicit unsupported-control warnings | SDL mapping importer, `map import-sdl`, device profile generation |
+| ADR-016 | RetroArch autoconfig importer to `device_profile` YAML with fixed A/B convention and explicit unsupported-field warnings | RetroArch mapping importer, `map import-retroarch`, device profile generation |
+| ADR-017 | Prompt-based `map init` wizard to create `device_profile` YAML with required-control enforcement | `map init`, wizard prompts, device profile generation |
+| ADR-018 | Boot calibration emits abstract timing markers only | boot calibration artifact, calibration CLI, generated boot plans |
 
 ### Known Gaps (verify before implementing)
 
@@ -189,3 +201,21 @@ Planning rules:
 - `Reference documents` must also include every ADR that governs the task's boundary (see ADR Index above).
 - `Reference documents` must include the relevant `docs/obsidian/` module note if one exists.
 - Add any domain-specific docs needed to understand the task safely before execution.
+
+## Task Presentation Rule
+
+Do not present a task as ready for execution, and do not present a handoff prompt for a task, until a separate task file exists for that task and is sufficiently defined for another agent to continue without ambiguity.
+
+Minimum required contents for that separate task file:
+
+- Objective
+- Scope
+- Out of scope
+- Dependencies
+- Reasoning grade
+- Effort grade
+- Recommended model
+- Acceptance criteria
+- Reference documents
+
+If the task file does not exist yet, create or complete it first. Only after that may the task or handoff prompt be presented.

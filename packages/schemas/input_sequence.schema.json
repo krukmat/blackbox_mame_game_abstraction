@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Input Sequence",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "id",
+    "steps"
+  ],
+  "anyOf": [
+    { "required": ["profile_type"] },
+    { "required": ["sequence_type"] }
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "profile_type": { "const": "input_sequence" },
+    "sequence_type": { "const": "input_sequence" },
+    "id": { "type": "string" },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["control", "frames"],
+        "properties": {
+          "control": { "type": "string" },
+          "frames": { "type": "integer", "minimum": 1 },
+          "notes": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

@@ -49,15 +49,16 @@ original sprite -> modified sprite -> reused asset
 
 The user plays GNG while MAME records an AVI. The agent handles the full boot sequence automatically (coin + start + intro wait). The user only needs to play.
 
-### Hardware / paths — never ask the user for these
+### Local bootstrap config
 
 | Item | Value |
 |------|-------|
-| MAME binary | `/opt/homebrew/bin/mame` |
-| ROM path | `/Users/matiasleandrokruk/Documents/gng/local/roms` |
+| Source profile | `gng` |
 | Driver | `gngb` |
 | Boot plan | `plans/gng_boot_only.yaml` |
 | Lua script | `scripts/mame_autoboot.lua` |
+| Local config docs | `docs/bootstrap.md` |
+| Local env example | `.env.example` |
 
 ### Boot timing (calibrated from run_e18611b8a7e7)
 
@@ -84,6 +85,8 @@ This script:
 4. After frame 1505, noop frames → user's keyboard takes over naturally
 5. MAME records everything to `evidence/private/run_<id>/video/capture.avi`
 6. Script blocks until user closes MAME window
+
+The script reads `.env` for `BLACKBOX_MAME_BINARY`, `BLACKBOX_ROM_PATH`, `BLACKBOX_MAME_DRIVER`, and related local-only settings.
 
 Tell the user: *"MAME is launching. The boot sequence runs automatically (~25 seconds). Controls once Arthur appears: ← → move, Left Alt jump, Left Ctrl fire. Close the window when you finish the level."*
 
@@ -176,6 +179,11 @@ The `docs/adr/` directory contains the authoritative record of significant archi
 | ADR-011 | Mechanics-to-scenario transformation and originality validation | T12 encounter grammar, scene recipes, validation gates |
 | ADR-012 | Entity signature-based player identification; multi-region FrameDiffer; ArthurTracker | `packages/vision/frame_differ.py`, `packages/vision/arthur_tracker.py`, `packages/vision/trace_extractor.py` |
 | ADR-013 | OpenCV as replaceable vision backend; MOG2 background subtraction; HUD masking; player gap tolerance | `packages/vision/frame_differ.py`, `packages/vision/gng_vision_config.py`, `packages/vision/trace_extractor.py` |
+| ADR-014 | Layered input mapping compatibility layer compiled to the existing input-plan pipeline | `input_planner.py`, mapping profiles/compiler, future `map` CLI commands |
+| ADR-015 | SDL GameControllerDB importer to `device_profile` YAML with explicit unsupported-control warnings | SDL mapping importer, `map import-sdl`, device profile generation |
+| ADR-016 | RetroArch autoconfig importer to `device_profile` YAML with fixed A/B convention and explicit unsupported-field warnings | RetroArch mapping importer, `map import-retroarch`, device profile generation |
+| ADR-017 | Prompt-based `map init` wizard to create `device_profile` YAML with required-control enforcement | `map init`, wizard prompts, device profile generation |
+| ADR-018 | Boot calibration emits abstract timing markers only | boot calibration artifact, calibration CLI, generated boot plans |
 
 ### Known Gaps (consult before implementing)
 
@@ -212,6 +220,24 @@ Before analyzing any existing module or proposing changes to it:
 2. Check the Known Gaps list for any open risks in that area.
 3. Read the corresponding module note in `docs/obsidian/` if one exists.
 4. If the proposed change touches a clean-room boundary (private/public separation, asset recipe originality, validation method), bias the reasoning grade upward.
+
+## Task Presentation Rule
+
+Do not present a task as ready, and do not produce a handoff prompt for a task, until a separate task file exists and is clear enough for another agent to continue without ambiguity.
+
+That task file must include at least:
+
+- Objective
+- Scope
+- Out of scope
+- Dependencies
+- Reasoning grade
+- Effort grade
+- Recommended model
+- Acceptance criteria
+- Reference documents
+
+If the file does not exist yet, create or complete it before presenting the task or the handoff prompt.
 
 ## New Feature Documentation Requirements
 

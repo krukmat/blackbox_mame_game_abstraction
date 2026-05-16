@@ -1,0 +1,16 @@
+schema_version: 1
+profile_type: input_sequence
+sequence_type: input_sequence
+id: gng_smoke_sequence
+steps:
+  - control: select
+    frames: 4
+    notes: Insert one credit.
+  - control: start
+    frames: 4
+  - control: dpad_right
+    frames: 30
+  - control: south
+    frames: 6
+  - control: east
+    frames: 6

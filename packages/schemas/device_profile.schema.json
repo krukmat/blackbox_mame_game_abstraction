@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Device Profile",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "profile_type",
+    "id",
+    "source",
+    "device",
+    "raw_to_canonical",
+    "metadata"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "profile_type": { "const": "device_profile" },
+    "id": { "type": "string" },
+    "source": { "type": "string" },
+    "device": {
+      "type": "object",
+      "required": ["kind", "name"],
+      "properties": {
+        "kind": { "type": "string" },
+        "name": { "type": "string" },
+        "guid": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "raw_to_canonical": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["clean_room_safe"],
+      "properties": {
+        "created_by": { "type": "string" },
+        "clean_room_safe": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

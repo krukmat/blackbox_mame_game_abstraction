@@ -83,6 +83,11 @@ evidence/private/    Private evidence (gitignored)
 | [[ADR-011 Mechanics-to-Scenario Transformation and Originality Validation]] | Rules for transforming abstract mechanics into original scenarios without copying expressive structure |
 | [[ADR-012 Entity Signature-Based Player Identification]] | Geometric signature (height, center_y) to isolate the player entity from frame diffs; multi-region FrameDiffer; ArthurTracker |
 | [[ADR-013 OpenCV Vision Backend]] | OpenCV as replaceable backend with adapter pattern; MOG2 background subtraction for stationary entity detection; HUD ROI masking; player gap tolerance |
+| [[ADR-014 Layered Input Mapping]] | Layered public device/controller/game-action profiles compiled into the current deterministic input-plan execution path |
+| [[ADR-015 SDL GameControllerDB Importer]] | Import SDL GameControllerDB controller entries into the existing public device-profile layer with explicit warnings for unsupported controls |
+| [[ADR-016 RetroArch Autoconfig Importer]] | Import RetroArch autoconfig controller bindings into the existing public device-profile layer with a fixed documented A/B convention |
+| [[ADR-017 Map Init Wizard]] | Interactive prompt-based creation of public device-profile YAML with required-control enforcement and duplicate-binding checks |
+| [[ADR-018 Boot Calibration Public Contract]] | Private calibration sessions may emit only abstract public timing markers, preserving the existing deterministic input-plan execution path |
 
 ## Current Phase
 

@@ -27,18 +27,44 @@
 #   Left Ctrl   Fire / attack
 #   Esc         Quit MAME (ends recording)
 #
-# NEVER ask the user for ROM path or MAME binary — they are hardcoded below.
-
 set -euo pipefail
 
 RUN_ID="${1:-manual_01}"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+if [ -f "${ROOT}/.env" ]; then
+  set -a
+  # shellcheck disable=SC1091
+  . "${ROOT}/.env"
+  set +a
+fi
+
 VENV="${ROOT}/apps/mame-harness/.venv/bin/python"
-EVIDENCE_DIR="${ROOT}/evidence/private/run_${RUN_ID}"
+MAME_BINARY="${BLACKBOX_MAME_BINARY:-mame}"
+ROM_PATH="${BLACKBOX_ROM_PATH:-}"
+MAME_DRIVER="${BLACKBOX_MAME_DRIVER:-gngb}"
+BOOT_PLAN="${BLACKBOX_BOOT_PLAN:-plans/gng_boot_only.yaml}"
+REL_EVIDENCE_ROOT="${BLACKBOX_EVIDENCE_ROOT:-evidence/private}"
+REL_EVIDENCE_ROOT="${REL_EVIDENCE_ROOT#./}"
+
+case "${REL_EVIDENCE_ROOT}" in
+  evidence/private|evidence/private/*) ;;
+  *)
+    echo "ERROR: BLACKBOX_EVIDENCE_ROOT must stay under evidence/private."
+    exit 1
+    ;;
+esac
+
+if [ -z "${ROM_PATH}" ]; then
+  echo "ERROR: BLACKBOX_ROM_PATH is not configured. Copy .env.example to .env and set your private ROM directory first."
+  exit 1
+fi
+
+EVIDENCE_DIR="${ROOT}/${REL_EVIDENCE_ROOT}/run_${RUN_ID}"
 AVI_PATH="${EVIDENCE_DIR}/video/capture.avi"
 FRAMES_DIR="${EVIDENCE_DIR}/frames"
 LOGS_DIR="${EVIDENCE_DIR}/logs"
 INPUT_PLAN_JSON="${LOGS_DIR}/input_plan.json"
+DISPLAY_AVI_PATH="${REL_EVIDENCE_ROOT}/run_${RUN_ID}/video/capture.avi"
 
 # --- Setup ---
 mkdir -p "${EVIDENCE_DIR}/video"
@@ -52,7 +78,7 @@ import sys
 sys.path.insert(0, '${ROOT}/apps/mame-harness')
 from pathlib import Path
 from input_planner import load_input_plan
-plan = load_input_plan(Path('${ROOT}/plans/gng_boot_only.yaml'))
+plan = load_input_plan(Path('${ROOT}/${BOOT_PLAN}'))
 plan.export_to_json(Path('${INPUT_PLAN_JSON}'))
 print(f"  Input plan exported: ${INPUT_PLAN_JSON}")
 frames = plan.expand_to_frames()
@@ -79,19 +105,19 @@ echo "    Left Alt    Jump"
 echo "    Left Ctrl   Fire"
 echo "    Esc         Quit (ends recording)"
 echo ""
-echo "  Recording to: ${AVI_PATH}"
+echo "  Recording to: ${DISPLAY_AVI_PATH}"
 echo ""
 
 BLACKBOX_INPUT_PLAN_PATH="${INPUT_PLAN_JSON}" \
-/opt/homebrew/bin/mame gngb \
-  -rompath /Users/matiasleandrokruk/Documents/gng/local/roms \
+"${MAME_BINARY}" "${MAME_DRIVER}" \
+  -rompath "${ROM_PATH}" \
   -aviwrite "${AVI_PATH}" \
   -snapshot_directory "${FRAMES_DIR}" \
   -autoboot_script "${ROOT}/scripts/mame_autoboot.lua"
 
 # --- Done ---
 echo ""
-echo "MAME closed. AVI saved to: ${AVI_PATH}"
+echo "MAME closed. AVI saved to: ${DISPLAY_AVI_PATH}"
 echo ""
 echo "Next step — extract frames and regenerate trace:"
 echo "  ./scripts/extract_frames.sh ${RUN_ID}"

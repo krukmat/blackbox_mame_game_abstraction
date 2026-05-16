@@ -19,6 +19,13 @@ ADRs record significant architectural and design decisions, including the contex
 | [ADR-009](./ADR-009-input-plan-determinism.md) | Input Plan Determinism and YAML Definition | Accepted |
 | [ADR-010](./ADR-010-public-original-game-definition-layer.md) | Public Original Game Definition Layer | Accepted |
 | [ADR-011](./ADR-011-mechanics-to-scenario-transformation-originality-validation.md) | Mechanics-to-Scenario Transformation and Originality Validation | Accepted |
+| [ADR-012](./ADR-012-entity-signature-based-player-identification.md) | Entity Signature-Based Player Identification | Accepted |
+| [ADR-013](./ADR-013-opencv-vision-backend.md) | OpenCV as Replaceable Vision Backend with Background Subtraction | Accepted |
+| [ADR-014](./ADR-014-layered-input-mapping.md) | Layered Input Mapping Before Deterministic Input Plans | Accepted |
+| [ADR-015](./ADR-015-sdl-gamecontrollerdb-importer.md) | SDL GameControllerDB Importer to Device Profiles | Accepted |
+| [ADR-016](./ADR-016-retroarch-autoconfig-importer.md) | RetroArch Autoconfig Importer to Device Profiles | Accepted |
+| [ADR-017](./ADR-017-map-init-wizard.md) | Prompt-Based `map init` Wizard | Accepted |
+| [ADR-018](./ADR-018-boot-calibration-public-contract.md) | Boot Calibration Emits Abstract Timing Markers Only | Accepted |
 
 ## Format
 

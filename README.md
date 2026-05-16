@@ -1,16 +1,58 @@
 # blackbox_mame_game_abstraction
 
-> Study a game's *feel*. Build a new game from abstract mechanics.
+> Observe gameplay behavior. Extract abstract mechanics. Build something new.
 
-This project explores a practical question: can we study how a game *moves and feels*, turn that into abstract mechanics, and use it as a starting point for something new?
+## What this is
 
-The framework observes a game running in MAME, turns what it sees into abstract mechanics data, and uses that data to help build a new independent mobile game — with original art, a new theme, and a new identity.
+This repository is a clean-room game-abstraction framework. It observes a game running in MAME, keeps the raw evidence private, and turns the observed behavior into public mechanics data that can support an independent implementation with original art, a new theme, and a new identity.
 
-**Current subject:** Ghosts 'n Goblins (`gng.zip` via MAME driver `gngb`) — the first case study. The architecture works for any MAME-observable game: swap the source profile and the rest of the pipeline follows.
+The goal is not to preserve the original game's expressive material. The goal is to study how the game behaves: movement rhythm, timing windows, interaction patterns, encounter structure, and other mechanics that can be described abstractly and then reused in something new.
 
-The framework separates observable behavior from expressive material. Jump arcs, timing windows, movement rhythms, and interaction patterns become numbers and specs. Local evidence stays private, and the public outputs stay focused on mechanics, recipes, and validation data.
+## Why this exists
 
-This is a clean-room tooling experiment built around one rule: only abstract mechanics cross the boundary.
+Emulators help run games. TAS and debugging tools help inspect emulated execution. RL environments help train agents. Controller tools help map physical inputs. Those are useful building blocks, but they do not target this repository's output.
+
+This project is aimed at a different handoff: observable behavior goes in, clean-room-safe mechanics artifacts come out. The output is meant to be implementation-ready in an abstract sense: numeric summaries, behavior traces, asset recipes, and public game-definition artifacts that can guide a new game without carrying original expressive content across the boundary.
+
+## How it differs from adjacent tools
+
+MAME and RetroArch help run games. BizHawk and related tooling help automate and inspect emulator behavior. Gym-style projects help train agents. Controller-mapping tools help bind hardware inputs.
+
+This repository uses some of the same ecosystem ideas, but it targets a different result: a clean-room abstraction layer that converts observed gameplay behavior into public mechanics data, validation traces, and original-asset guidance for an independent implementation.
+
+## What this is not
+
+- not a ROM distribution project
+- not an asset extraction tool
+- not a game cloning pipeline
+- not a generic emulator frontend
+- not an RL training environment
+
+## The core idea
+
+```text
+observe -> capture -> abstract -> validate -> reimplement independently
+```
+
+## Clean-room boundary
+
+The framework separates observable behavior from expressive material. ROMs, screenshots, videos, frame dumps, sprites, audio, crops, and other source artifacts stay private. Public outputs stay limited to abstract mechanics, numeric summaries, behavioral traces, asset recipes, validation data, and original game-definition artifacts.
+
+This is the hard rule of the repo: only abstract mechanics cross the boundary.
+
+## Current case study
+
+The first case study is Ghosts 'n Goblins (`gng.zip` via MAME driver `gngb`). The repository currently uses that subject to exercise the pipeline, but the architecture is intended for any game that can be observed through the same MAME-based boundary.
+
+## Why layered input mapping was added
+
+The input mapping flow is being pushed toward explicit layers so contributors do not have to jump straight from a physical keyboard or controller to game-specific actions and fragile boot timings.
+
+```text
+physical device -> canonical controller -> game action -> observable effect -> abstract rule
+```
+
+At the repository level, that means public mapping profiles can stay reusable and clean-room safe before they are compiled into the existing deterministic input-plan pipeline.
 
 ---
 
@@ -128,21 +170,29 @@ After T10/T11, the next documented phase is T12: Original Game Definition. T12 d
 
 ## Quick start
 
-You need Python 3.11, MAME, and the harness virtualenv. A ROM is required for real capture; dry-run mode lets you verify the setup first.
+You need Python 3.11, MAME, ffmpeg, and the harness virtualenv. A ROM is required for real capture. Keep local machine details in `.env` or `blackbox.local.yaml`, not in tracked files.
 
 ```bash
 python3.11 -m venv apps/mame-harness/.venv
 source apps/mame-harness/.venv/bin/activate
 pip install -e '.[dev]'
 
-# Verify your setup in dry-run mode
+# Verify your local bootstrap first
+cp .env.example .env
+apps/mame-harness/.venv/bin/python apps/mame-harness/cli.py doctor
+
+# Then verify the run path in dry-run mode
 apps/mame-harness/.venv/bin/python apps/mame-harness/cli.py run --rom gng --dry-run --frames-to-run 300
 
 # Run tests with the supported interpreter
 apps/mame-harness/.venv/bin/pytest -q
 ```
 
-The dry run builds the same command and metadata path the real capture would use while skipping the ROM-backed recording step. After that, the tests check the clean-room contract for private path isolation, blocked evidence formats, trace output safety, and asset recipes with originality rules.
+The doctor command checks MAME, ffmpeg, source-profile and driver alignment, ROM-path configuration, and writable private evidence directories without printing local machine paths. The dry run then builds the same command and metadata path the real capture would use while skipping the ROM-backed recording step. After that, the tests check the clean-room contract for private path isolation, blocked evidence formats, trace output safety, and asset recipes with originality rules.
+
+Layered input mapping docs: [`docs/mapping.md`](docs/mapping.md)
+
+Portable machine bootstrap: [`docs/bootstrap.md`](docs/bootstrap.md)
 
 Full pipeline commands:
 
@@ -276,7 +326,7 @@ plans/              Input plan YAML files (reproducible frame sequences)
 specs/              Public output artifacts — tracked in git
 evidence/private/   Gitignored private captures
 docs/
-  adr/              Architecture Decision Records (ADR-001 through ADR-012)
+  adr/              Architecture Decision Records (ADR-001 through ADR-018)
   obsidian/         Obsidian vault with module notes and wikilinks
 ```
 
