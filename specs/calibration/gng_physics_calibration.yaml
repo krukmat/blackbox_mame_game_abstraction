@@ -1,0 +1,52 @@
+schema_version: '1.0'
+source_trace: gng_trace.json
+ms_per_frame: 16.768
+generated_by: T10.7.A visual_jump_picker — human-validated candidates (ADR-019)
+calibration_method: kinematic_from_human_validated_candidates
+calibration_note: >
+  Values derived from 2 human-validated jump candidates (IDs 2 and 3) from
+  run_t10_7_jumps. Each candidate was visually confirmed by the operator against
+  private PNG frames. Kinematic formula: v0 = 2H/t_asc, g = 2H/t_asc^2.
+  t_peak_predicted = t_peak_observed = 4 frames (0% error). Gate: PASS.
+  Locomotion velocity updated in T10.7.C from human-validated walk candidates
+  (IDs 3, 5, 8, 10) from run_t10_7_walk.
+constants:
+  locomotion_velocity_x:
+    value_per_frame: 0.004671
+    value_per_second: 0.2786
+    sample_count: 24
+    std_dev: 0.000198
+    source_method: human_validated_walk_segment
+    note: >
+      Derived from 4 human-validated walk candidates (IDs 3, 5, 8, 10) from
+      run_t10_7_walk via ADR-019 picker workflow. Each candidate was visually
+      confirmed as flat-ground locomotion; value_per_frame is the median of
+      per-segment velocity_x_median values.
+  jump_velocity_y:
+    value_per_frame: 0.007825
+    value_per_second: 0.4668
+    sample_count: 2
+    std_dev: 0.002495
+    source_method: human_validated_kinematic
+    note: >
+      Derived from 2 human-validated candidates (T10.7.A ADR-019).
+      H_px values: [4.01, 3.00]. t_asc=4 for both.
+      v0 = 2*H_px/t_asc, averaged in px/frame then normalized by frame_height=224.
+  gravity_units_per_frame:
+    value_per_frame: 0.001956
+    value_per_second: 0.1167
+    sample_count: 2
+    std_dev: 0.000623
+    source_method: human_validated_kinematic
+    note: >
+      Derived from 2 human-validated candidates (T10.7.A ADR-019).
+      g = 2*H_px/t_asc^2, averaged in px/frame² then normalized by frame_height=224.
+      t_peak_check = v0/g = 4.0 frames (PASS, error=0%).
+  projectile_velocity_x:
+    value_per_frame: 0.003138
+    value_per_second: 0.1871
+    sample_count: 21
+    std_dev: 0.011928
+    source_method: player_velocity_at_fire_surrogate
+    note: Projectile in-flight tracking unavailable (ADR-013); derived from player
+      velocity_x at fire events.

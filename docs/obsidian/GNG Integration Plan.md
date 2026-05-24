@@ -37,7 +37,7 @@ Make `gng.zip` (Ghosts'n Goblins) a reproducible, legally bounded observation so
 | T10.1 | Gameplay Capture with Active Input Plan | ✅ Done — 2026-05-13 |
 | T10.2 | Frame-by-Frame Behavioral Extraction | ✅ Done — 2026-05-14 |
 | T10.3 | Timing Calibration | ✅ Done — 2026-05-14 |
-| T10.4 | Public Artifact Generation + Guardrails Verification | 🔲 Planned |
+| T10.4 | Public Artifact Generation + Guardrails Verification | ✅ Done |
 | T10.5 | ArthurTracker — Entity Signature-Based Player Identification | ✅ Done |
 | T10.5-D | TDD Suite | ✅ Done |
 | T10.5-A | Multi-region FrameDiffer | ✅ Done |
@@ -51,19 +51,46 @@ Make `gng.zip` (Ghosts'n Goblins) a reproducible, legally bounded observation so
 | T10.5-C.4.c.2.a | Last-entry target resolution | ✅ Done |
 | T10.5-C.4.c.2.b | Die event mutation + dedup | ✅ Done |
 | T10.5-E | Regenerate specs/traces/gng_trace.json | ✅ Done |
-| T10.6 | OpenCV Vision Backend — background subtraction, HUD mask, gap tolerance | 🔲 Planned |
-| T10.6-A | Adapter interface + OpenCV install | 🔲 Planned |
-| T10.6-B | HUD ROI masking | 🔲 Planned |
-| T10.6-C | cv2.connectedComponentsWithStats contour extraction | 🔲 Planned |
-| T10.6-D | MOG2 background subtraction | 🔲 Planned |
-| T10.6-E | Player gap tolerance | 🔲 Planned |
-| T10.6-F | Trace regeneration + quality validation | 🔲 Planned |
-| T10.4 | Public Artifact Generation + Guardrails Verification | 🔲 Planned |
-| T11 | RN Prototype Hookup | 🔲 Planned |
+| T10.6 | OpenCV Vision Backend — background subtraction, HUD mask, gap tolerance | ✅ Done |
+| T10.6-A | Adapter interface + OpenCV install | ✅ Done |
+| T10.6-B | HUD ROI masking | ✅ Done |
+| T10.6-C | cv2.connectedComponentsWithStats contour extraction | ✅ Done |
+| T10.6-D | MOG2 background subtraction | ✅ Done |
+| T10.6-E | Player gap tolerance | ✅ Done |
+| T10.6-F | Trace regeneration + quality validation | ✅ Done |
+| T10.4 | Public Artifact Generation + Guardrails Verification | ✅ Done |
+| T10.8 | Enemy Tracking Continuity (Stage 1 Screen 1) | 🔲 Planned |
+| T10.8.1 | Enemy Signature Catalog and Calibration (zombi, crow) | 🔲 Planned |
+| T10.8.2 | EntityTracker Generalization + ArthurTracker Wrapper | 🔲 Planned |
+| T10.8.3 | trace_extractor Integration (persistent IDs + lifecycle events) | 🔲 Planned |
+| T10.8.4 | Regression Test Suite for Enemy Tracking | 🔲 Planned |
+| T10.8.5 | Trace Regeneration and Quality Validation | 🔲 Planned |
+| T10.8.6 | ADR-021 Publication and Documentation Updates | 🔲 Planned |
+| T10.9 | Boss and Devil Tracking (Stage 1 Full Sweep) | 🔲 Planned |
+| T10.9.1 | Scroll Detection + MOG2 Reset (ADR-022) | 🔲 Planned |
+| T10.9.2 | Red Arremer Signature Calibration | 🔲 Planned |
+| T10.9.3 | Cyclops Boss Signature Calibration | 🔲 Planned |
+| T10.9.4 | EntityTracker Integration + Regression Tests | 🔲 Planned |
+| T10.9.5 | Trace Regeneration, Validation, and Documentation | 🔲 Planned |
+| T11 | RN Prototype Hookup | 🔄 In Progress |
+| T11.1 | Abstract Mechanics Loader (TypeScript YAML) | ✅ Done |
+| T11.2 | Trace Episode Extractor | ✅ Done |
+| T11.3 | Physics Calibration from Trace | 🔲 Planned ← next |
+| T11.4 | Episode-Driven Scene in RN Prototype | 🔲 Planned |
+| T11.5 | Clean-Room Verification | 🔲 Planned |
+| T12.0 | Original Game Definition ADRs and Phase Plan | 🔲 Planned |
+| T12.1 | Public Mechanics Capability Review | 🔲 Planned |
+| T12.2 | Product Direction and Gameplay Pillars | 🔲 Planned |
+| T12.3 | Encounter Grammar Schema | 🔲 Planned |
+| T12.4 | Scene Recipe and Transformation Rules | 🔲 Planned |
+| T12.5 | Progression and Difficulty Model | 🔲 Planned |
+| T12.6 | Theme Translation and Asset Recipe Enrichment | 🔲 Planned |
+| T12.7 | RN Original Vertical Slice Hookup | 🔲 Planned |
+| T12.8 | Originality and Design-Intent Validation Gate | 🔲 Planned |
 
 ## Dependency Order
 
-T01 → T02 → T03 → T04 → T05 → T06 → T07 → T08 → T09 → T10.1 → T10.2 → T10.3 → T10.5-D → T10.5-A → T10.5-B → T10.5-C.1 → T10.5-C.2 → T10.5-C.3 → T10.5-C.4.a → T10.5-C.4.b → T10.5-C.4.c.1 → T10.5-C.4.c.2.a → T10.5-C.4.c.2.b → T10.5-E → T10.6-A → T10.6-B → T10.6-C → T10.6-D → T10.6-E → T10.6-F → T10.4 → T11
+T01 → T02 → T03 → T04 → T05 → T06 → T07 → T08 → T09 → T10.1 → T10.2 → T10.3 → T10.5-D → T10.5-A → T10.5-B → T10.5-C.1 → T10.5-C.2 → T10.5-C.3 → T10.5-C.4.a → T10.5-C.4.b → T10.5-C.4.c.1 → T10.5-C.4.c.2.a → T10.5-C.4.c.2.b → T10.5-E → T10.6-A → T10.6-B → T10.6-C → T10.6-D → T10.6-E → T10.6-F → T10.4 → T10.7.E → T10.8.1 → T10.8.2 → T10.8.3 → T10.8.4 → T10.8.5 → T10.8.6 → T10.9.1 → T10.9.2 ∥ T10.9.3 → T10.9.4 → T10.9.5 → T11.1 → T11.2 → T11.3 → T11.4 → T11.5 → T12.0 → T12.1 → T12.2 → T12.3 → T12.4 → T12.5 → T12.6 → T12.7 → T12.8
 
 Each task depends on the stabilized contract from all prior tasks.
 

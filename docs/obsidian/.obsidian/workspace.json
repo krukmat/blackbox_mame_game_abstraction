@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "ADR-001 Clean-Room Layered Architecture.md",
+                "file": "ADR-018 Boot Calibration Public Contract.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "ADR-001 Clean-Room Layered Architecture"
+              "title": "ADR-018 Boot Calibration Public Contract"
             }
           }
         ]
@@ -94,7 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "ADR-001 Clean-Room Layered Architecture.md",
+                "file": "ADR-018 Boot Calibration Public Contract.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Enlaces entrantes de ADR-001 Clean-Room Layered Architecture"
+              "title": "Enlaces entrantes de ADR-018 Boot Calibration Public Contract"
             }
           },
           {
@@ -113,12 +113,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "ADR-001 Clean-Room Layered Architecture.md",
+                "file": "ADR-018 Boot Calibration Public Contract.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Enlaces salientes de ADR-001 Clean-Room Layered Architecture"
+              "title": "Enlaces salientes de ADR-018 Boot Calibration Public Contract"
             }
           },
           {
@@ -156,13 +156,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "ADR-001 Clean-Room Layered Architecture.md",
+                "file": "ADR-018 Boot Calibration Public Contract.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Esquema de ADR-001 Clean-Room Layered Architecture"
+              "title": "Esquema de ADR-018 Boot Calibration Public Contract"
             }
           }
         ]
@@ -185,8 +185,13 @@
   },
   "active": "900b4a0753972d55",
   "lastOpenFiles": [
-    "ADR-018 Boot Calibration Public Contract.md",
+    "ADR-022 Scroll-Aware Vision Pipeline.md",
+    "ADR-021 Enemy Tracking Continuity.md",
+    "ADR-020 Projectile In-Flight Tracking.md",
+    "ADR-019 Human-Validated Calibration Candidates.md",
     "ADR-017 Map Init Wizard.md",
+    "ADR-001 Clean-Room Layered Architecture.md",
+    "ADR-018 Boot Calibration Public Contract.md",
     "ADR-016 RetroArch Autoconfig Importer.md",
     "ADR-015 SDL GameControllerDB Importer.md",
     "ADR-014 Layered Input Mapping.md",

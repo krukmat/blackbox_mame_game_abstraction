@@ -88,7 +88,7 @@ This script:
 
 The script reads `.env` for `BLACKBOX_MAME_BINARY`, `BLACKBOX_ROM_PATH`, `BLACKBOX_MAME_DRIVER`, and related local-only settings.
 
-Tell the user: *"MAME is launching. The boot sequence runs automatically (~25 seconds). Controls once Arthur appears: ← → move, Left Alt jump, Left Ctrl fire. Close the window when you finish the level."*
+Tell the user: *"MAME is launching. The boot sequence runs automatically (~25 seconds). Controls once Arthur appears: ← → move, Option jump, Control fire. Close the window when you finish the level."*
 
 ### Step 2 — When step 1 returns, agent runs this immediately
 
@@ -106,8 +106,8 @@ This script:
 | Key | Action |
 |-----|--------|
 | `←` `→` | Move left / right |
-| `Left Alt` | Jump |
-| `Left Ctrl` | Fire / attack |
+| `Option` | Jump |
+| `Control` | Fire / attack |
 | `Esc` | Quit MAME (ends recording) |
 
 ### Scripts reference
@@ -143,6 +143,7 @@ This script:
 - Add tests for all guardrails
 - Keep `evidence/private` gitignored
 - Keep generated public specs free from original visual content
+- Do not use TDD by default in this project. Implement first, then add focused regression tests for the finished behavior when tests are required.
 
 ## Architecture Priorities
 
@@ -157,6 +158,14 @@ This script:
 Every module that writes files must have tests proving it does not write private visual evidence into tracked directories.
 
 Every asset recipe must include originality constraints.
+
+## Documentation Update Requirement
+
+Documentation must always be updated in the same workstream when the effective workflow, execution instructions, assumptions, or accepted operating procedure change.
+
+- Do not leave task docs, handoff docs, or operator-facing instructions stale after changing the real process.
+- If an agent adjusts a live task procedure during execution, the corresponding documentation must be updated before that adjusted procedure is treated as the current documented path.
+- If the change affects execution continuity, update both the task document and the active handoff document.
 
 ## Architecture Decision Records
 
@@ -184,6 +193,10 @@ The `docs/adr/` directory contains the authoritative record of significant archi
 | ADR-016 | RetroArch autoconfig importer to `device_profile` YAML with fixed A/B convention and explicit unsupported-field warnings | RetroArch mapping importer, `map import-retroarch`, device profile generation |
 | ADR-017 | Prompt-based `map init` wizard to create `device_profile` YAML with required-control enforcement | `map init`, wizard prompts, device profile generation |
 | ADR-018 | Boot calibration emits abstract timing markers only | boot calibration artifact, calibration CLI, generated boot plans |
+| ADR-019 | Human-validated calibration candidates pattern (picker → accept/reject → calculator) | `apps/mame-harness/visual_jump_picker.py`, future calibration pickers, `<picker>_candidates.json` private artifacts |
+| ADR-020 | Cross-frame projectile continuity for in-flight velocity calibration | projectile tracking, projectile picker, projectile calibration output |
+| ADR-021 | Generalized `EntityTracker` with per-type `EntitySignature`; persistent enemy IDs across frames; `ArthurTracker` becomes a wrapper | `packages/vision/entity_tracker.py`, `packages/vision/arthur_tracker.py`, `packages/vision/trace_extractor.py`, `specs/calibration/gng_enemy_signatures.yaml` |
+| ADR-022 | Scroll-aware vision pipeline: `ScrollDetector` + MOG2 reset on scroll end with warmup window; resolves ADR-013 MOG2 scroll-reset Known Gap | `packages/vision/scroll_detector.py`, `packages/vision/frame_differ.py`, `packages/vision/gng_vision_config.py`, `packages/vision/trace_extractor.py` |
 
 ### Known Gaps (consult before implementing)
 

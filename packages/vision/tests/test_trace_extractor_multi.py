@@ -392,3 +392,54 @@ class TestExtractTraceMultiEntity:
                 assert event in VALID_EVENTS_T09_2, (
                     f"non-canonical event '{event}' on entity={entry.entity_id} frame={entry.frame}"
                 )
+
+
+# ---------------------------------------------------------------------------
+# T10.7.B — Entity-ID collision fix regression tests
+# ---------------------------------------------------------------------------
+
+from trace_extractor import _entity_type_from_box  # noqa: E402
+
+
+class TestEntityTypeFromBoxAllowPlayer:
+    """T10.7.B: verify allow_player flag prevents collision when player slot is claimed."""
+
+    def test_entity_type_returns_player_when_allow_player_default(self) -> None:
+        # Large blob (22×25 = 550 px; ratio ≈ 0.096 > _RATIO_PLAYER=0.04) → "player" by default.
+        region = _player_region(90.0, 170.0)
+        result = _entity_type_from_box(region, FRAME_W, FRAME_H)
+        assert result == "player"
+
+    def test_entity_type_returns_enemy_a_when_allow_player_false(self) -> None:
+        # Same large blob with allow_player=False must fall through to enemy_a classification.
+        region = _player_region(90.0, 170.0)
+        result = _entity_type_from_box(region, FRAME_W, FRAME_H, allow_player=False)
+        assert result == "enemy_a"
+
+    def test_entity_type_still_classifies_projectile_when_allow_player_false(self) -> None:
+        # Projectile-sized blob (6×6): ratio ≈ 0.00099 < _RATIO_ENEMY_A=0.004 → "projectile".
+        # allow_player=False must not break smaller categories.
+        region = _projectile_region(128.0, 112.0)
+        result = _entity_type_from_box(region, FRAME_W, FRAME_H, allow_player=False)
+        assert result == "projectile"
+
+    def test_extract_trace_two_player_sized_blobs_emits_one_player_one_enemy(self) -> None:
+        # Integration: one frame with Arthur + another player-sized blob.
+        # Arthur is detected by find_arthur (within signature bounds, leftmost).
+        # The second player-sized blob must be classified as enemy_a, not "player".
+        # Result: exactly 1 entity_id="player", 1 entity_id starts with "enemy_a".
+        arthur = _player_region(90.0, 170.0)   # within ArthurSignature bounds
+        impostor = _player_region(200.0, 130.0)  # player-sized but not Arthur
+
+        stats = [_stat(0, arthur, impostor)]
+        result = extract_trace(stats, _plan("noop"), frame_width=FRAME_W, frame_height=FRAME_H)
+
+        player_entries = [e for e in result if e.entity_id == "player"]
+        enemy_entries = [e for e in result if e.entity_id.startswith("enemy_a")]
+
+        assert len(player_entries) == 1, (
+            f"Expected 1 player entry, got {len(player_entries)}: {[e.entity_id for e in result]}"
+        )
+        assert len(enemy_entries) == 1, (
+            f"Expected 1 enemy_a entry, got {len(enemy_entries)}: {[e.entity_id for e in result]}"
+        )

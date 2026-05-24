@@ -105,3 +105,7 @@ The editable layered source of truth remains:
 
 - `plans/sequences/gng_boot_only.yaml`
 - `plans/sequences/gng_gameplay.yaml`
+
+Operational runbook:
+
+- [`docs/gng_execution_process.md`](gng_execution_process.md)

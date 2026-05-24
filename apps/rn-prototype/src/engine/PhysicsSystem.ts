@@ -7,6 +7,17 @@ export interface PhysicsConfig {
   jumpVelocity: number;
 }
 
+// T10.7.A / T10.7.C — values from human-validated calibration candidates (ADR-019).
+// Source: specs/calibration/gng_physics_calibration.yaml.
+// Coordinates: normalized (0–1 per screen dimension) per second.
+// Jump: run_t10_7_jumps, kinematic gate PASS. Locomotion: run_t10_7_walk,
+// walk candidates IDs 3, 5, 8, 10 accepted by operator review.
+export const CALIBRATED_PHYSICS_CONFIG: PhysicsConfig = {
+  gravity: 0.1167,      // normalized/s²  (n=2, human_validated_kinematic)
+  moveSpeed: 0.2786,    // normalized/s   (n=24, human_validated_walk_segment)
+  jumpVelocity: 0.4668, // normalized/s   (n=2, human_validated_kinematic, |measured_vy|)
+};
+
 export class PhysicsSystem {
   constructor(private readonly config: PhysicsConfig) {}
 

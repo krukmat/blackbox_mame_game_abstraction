@@ -8,7 +8,7 @@
 
 schema_version: "1.0.0"
 game_profile: gngb
-calibration_status: calibrated  # T10.3: timing values measured from real capture evidence
+calibration_status: calibrated  # T11.3: physics constants measured from gng_trace.json
 
 # T10.3 Calibration Evidence:
 # Source: evidence/private/run_9d1153ff6637/video/capture.avi (1075 frames),
@@ -18,9 +18,9 @@ calibration_status: calibrated  # T10.3: timing values measured from real captur
 # Measured via ffprobe -show_streams (numeric output only; no pixel data read).
 # Coordinate scale: GNG native resolution 256×224 pixels. One abstract unit = one pixel.
 # movement_tolerance = 2.0 units (covers sub-pixel rounding; does not mask real errors).
-# velocity_x (locomotion/projectile), velocity_y (jump), gravity_units_per_frame, and
-# spawn_delay_frames require a multi-mechanic trace (T10.4 scope) for per-entity measurement.
-# Those fields remain marked calibration: pending until a trace with jump + fire events is available.
+# velocity_x (locomotion/projectile), velocity_y (jump), and gravity_units_per_frame
+# were calibrated in T11.3 from specs/traces/gng_trace.json.
+# spawn_delay_frames remains uncalibrated — projectile in-flight tracking not yet available (ADR-013).
 timing:
   fps: 59.6374
   ms_per_frame: 16.768
@@ -44,7 +44,14 @@ mechanics:
       entity_type:        { type: string,  enum: [player], required: true }
       x:                  { type: number,  required: true, unit: abstract }
       y:                  { type: number,  required: true, unit: abstract }
-      velocity_x:         { type: number,  required: true, unit: abstract, calibration: pending }
+      velocity_x:
+        type: number
+        required: true
+        unit: abstract
+        calibrated_value: 0.004671
+        calibrated_value_per_second: 0.2786
+        sample_count: 24
+        calibration_source: specs/calibration/gng_physics_calibration.yaml
       velocity_y:         { type: number,  required: true, default: 0.0 }
       state:
         type: string
@@ -65,7 +72,7 @@ mechanics:
       entity_type: player
       x: 48.0
       y: 180.0
-      velocity_x: 2.0        # calibration-pending: measured in T10
+      velocity_x: 0.2786
       velocity_y: 0.0
       state: walking_right
       events: [movement_start]
@@ -87,7 +94,15 @@ mechanics:
       x:                  { type: number,  required: true, unit: abstract }
       y:                  { type: number,  required: true, unit: abstract }
       velocity_x:         { type: number,  required: true, unit: abstract }
-      velocity_y:         { type: number,  required: true, unit: abstract, calibration: pending }
+      velocity_y:
+        type: number
+        required: true
+        unit: abstract
+        calibrated_value: 0.033478
+        calibrated_value_per_second: 1.9966
+        sample_count: 166
+        calibration_source: specs/calibration/gng_physics_calibration.yaml
+        note: "trace sign inverted vs PhysicsSystem; jumpVelocity = |measured| = 1.9966"
       state:
         type: string
         required: true
@@ -129,7 +144,15 @@ mechanics:
       entity_type:        { type: string,  enum: [projectile], required: true }
       x:                  { type: number,  required: true, unit: abstract }
       y:                  { type: number,  required: true, unit: abstract }
-      velocity_x:         { type: number,  required: true, unit: abstract, calibration: pending }
+      velocity_x:
+        type: number
+        required: true
+        unit: abstract
+        calibrated_value: 0.143111
+        calibrated_value_per_second: 8.5348
+        sample_count: 54
+        calibration_source: specs/calibration/gng_physics_calibration.yaml
+        calibration_method: player_velocity_at_fire_surrogate
       velocity_y:         { type: number,  required: true, default: 0.0 }
       state:
         type: string
@@ -190,7 +213,11 @@ mechanics:
       gravity_units_per_frame:
         type: number
         required: false
-        note: "positive constant added to velocity_y each airborne frame; calibration-pending T10"
+        calibrated_value: 0.092343
+        calibrated_value_per_second: 5.5071
+        sample_count: 277
+        calibration_source: specs/calibration/gng_physics_calibration.yaml
+        note: "positive constant added to velocity_y each airborne frame"
       score_delta:        { type: integer, required: false, default: 0 }
     invariants:
       - "state == grounded → velocity_y == 0.0"

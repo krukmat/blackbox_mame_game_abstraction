@@ -2,7 +2,7 @@
 
 ## Status
 
-🟡 In Progress — T10.3 next
+✅ Done
 
 ## Subtask Status
 
@@ -28,8 +28,8 @@
 | T10.2.2.4 | TraceExtractor Integration + Clean-room Verification | `S` | `Low` | ✅ Done — 2026-05-14 |
 | T10.2.3 | Trace Output Writer + Guardrails Verification | `S` | `Medium` | ✅ Done — 2026-05-14 |
 | T10.3 | Timing Calibration | `M` | `Medium` | ✅ Done — 2026-05-14 |
-| T10.4 | Public Artifact Generation + Guardrails Verification | `S` | `Low` | 🔲 Planned |
-| T10.5 | ArthurTracker — Entity Signature-Based Player Identification | `L` | `High` | 🔲 Planned |
+| T10.4 | Public Artifact Generation + Guardrails Verification | `M` | `Medium` | ✅ Done |
+| T10.5 | ArthurTracker — Entity Signature-Based Player Identification | `L` | `High` | ✅ Done |
 
 ## Subtask Files
 

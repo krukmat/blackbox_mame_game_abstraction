@@ -45,6 +45,10 @@ This directory is an Obsidian vault for the project. Open `docs/obsidian/` as a 
 - [[ADR-016 RetroArch Autoconfig Importer]]
 - [[ADR-017 Map Init Wizard]]
 - [[ADR-018 Boot Calibration Public Contract]]
+- [[ADR-019 Human-Validated Calibration Candidates]]
+- [[ADR-020 Projectile In-Flight Tracking]]
+- [[ADR-021 Enemy Tracking Continuity]]
+- [[ADR-022 Scroll-Aware Vision Pipeline]]
 
 ## Full ADRs
 

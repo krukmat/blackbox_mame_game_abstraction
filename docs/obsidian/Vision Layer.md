@@ -60,6 +60,26 @@ GNG native FPS: **59.6374 fps** (measured from three capture runs via ffprobe). 
 
 > The vision layer reads private paths but never writes them. All output is numeric or abstract strings. Any function that takes a `private_path` must not forward that path to a return value, a log message destined for public output, or a serialized artifact.
 
+## T10.7.B — Entity-ID Collision Fix (2026-05-23)
+
+`_entity_type_from_box` previously returned `"player"` for any blob with player-sized area ratio, producing duplicate `entity_id="player"` entries that bypassed per-entity debounce and corrupted the `visual_jump_picker.py` candidate set.
+
+Fix: added `allow_player: bool = True` parameter. `extract_trace` now passes `allow_player=False` at both `remaining_regions` call sites (disappearance peek loop and main emission loop), so the player slot is exclusively reserved for the `ArthurTracker.find_arthur` result. Result: 0 duplicate player frames in the `run_t10_7_jumps` trace.
+
+See [[ADR-019 Human-Validated Calibration Candidates]] and `docs/tasks/gng_source_integration/T10.7.B-entity-id-collision-fix.md`.
+
+## T10.7.A — Visual-Anchored Calibration (2026-05-23)
+
+Physics calibration was re-derived via the ADR-019 human-validated picker pattern. `apps/mame-harness/visual_jump_picker.py` surfaced jump arc candidates from `run_t10_7_jumps`; the user accepted IDs 2 and 3. Per-jump kinematics (ascent + descent gravity cross-check) produced:
+
+- `jumpVelocity_y = 0.4668 /s`
+- `gravity = 0.1167 /s²`
+- `t_peak error = 0%` (predicted vs observed)
+
+Values written to `specs/calibration/gng_physics_calibration.yaml` and `apps/rn-prototype/src/engine/PhysicsSystem.ts`. The original trace-based approach was abandoned after T10.7.B confirmed the collision was the residual noise source.
+
+See [[ADR-019 Human-Validated Calibration Candidates]] and `docs/tasks/gng_source_integration/T10.7.A-visual-calibration.md`.
+
 ## Related
 
 - [[Private vs Public Boundary]]

@@ -27,7 +27,7 @@ def test_gng_vision_config_is_importable() -> None:
     assert cfg.hud_y_top == 204
     assert cfg.min_contour_area == 32  # T10.6-E: swept default changed from 4 to 32
     assert cfg.diff_threshold == 10
-    assert cfg.player_gap_tolerance == 15  # T10.6-E: tuned from 3 to 15 for MOG2 gap profile
+    assert cfg.player_gap_tolerance == 60  # T10.4 tuning: bridges long MOG2 player gaps in manual capture
 
 
 def test_frame_differ_backend_protocol_is_importable() -> None:

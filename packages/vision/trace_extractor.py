@@ -25,6 +25,9 @@ if TYPE_CHECKING:
 VX_STILL: float = 0.005  # |vx| below this → no horizontal motion
 VY_STILL: float = 0.005  # |vy| below this → no vertical motion
 
+# T10.7: require ≥ MIN_GROUND_STREAK consecutive grounded frames before emitting jump_start
+MIN_GROUND_STREAK: int = 3
+
 
 # ---------------------------------------------------------------------------
 # Rule 1 — Velocity computation
@@ -133,6 +136,7 @@ def _infer_events(
     prev_state: str,
     curr_state: str,
     input_action: str,
+    ground_streak: int | None = None,
 ) -> list[str]:
     """Return the event list for a single frame using Rule 3 and Rule 4.
 
@@ -149,7 +153,9 @@ def _infer_events(
 
     # Jump arc
     if prev_state in _PRE_JUMP_STATES and curr_state == "ascending":
-        events.append("jump_start")
+        # T10.7: suppress jump_start unless entity was grounded for enough consecutive frames
+        if ground_streak is None or ground_streak >= MIN_GROUND_STREAK:
+            events.append("jump_start")
     elif prev_state == "ascending" and curr_state == "descending":
         events.append("jump_peak")
     elif prev_state in {"ascending", "descending", "airborne"} and curr_state in _GROUNDED_STATES:
@@ -196,10 +202,15 @@ _RATIO_ENEMY_A: float = 0.004
 _RATIO_PROJECTILE: float = 0.0005
 
 
-def _entity_type_from_box(region: MotionBox, frame_width: int, frame_height: int) -> str:
+def _entity_type_from_box(
+    region: MotionBox,
+    frame_width: int,
+    frame_height: int,
+    allow_player: bool = True,  # T10.7.B: False when player slot already claimed by ArthurTracker
+) -> str:
     """Return entity_type string from T09.2 entity_type enum based on area ratio."""
     ratio = (region.width * region.height) / (frame_width * frame_height)
-    if ratio >= _RATIO_PLAYER:
+    if allow_player and ratio >= _RATIO_PLAYER:
         return "player"
     if ratio >= _RATIO_ENEMY_A:
         return "enemy_a"
@@ -262,6 +273,10 @@ def extract_trace(
     # Key: entity_id (e.g. "player", "enemy_a_5"), value: last seen frame index.
     prev_seen_by_id: dict[str, int] = {}
 
+    # T10.7: per-entity ground streak counter — consecutive frames in _GROUNDED_STATES.
+    # Used by _infer_events to debounce spurious jump_start events.
+    ground_streak_by_entity: dict[str, int] = {}
+
     # T10.6-E: consecutive absent-frame counter for "player" only.
     # Incremented each frame the player is not detected; reset to 0 on detection.
     player_gap_counter: int = 0
@@ -281,7 +296,7 @@ def extract_trace(
                 current_frame_ids.add("player")
             remaining_peek = _regions_except_claimed(curr_stat.changed_regions, player_region_peek)
             for ri, region in enumerate(remaining_peek):
-                etype = _entity_type_from_box(region, frame_width, frame_height)
+                etype = _entity_type_from_box(region, frame_width, frame_height, allow_player=False)  # T10.7.B
                 current_frame_ids.add(_entity_id_from_type(etype, curr_stat.start_frame, ri))
 
         # T10.6-E: update player gap counter before disappearance logic
@@ -326,7 +341,7 @@ def extract_trace(
 
         remaining_regions = _regions_except_claimed(curr_stat.changed_regions, player_region)
         for region_index, region in enumerate(remaining_regions):
-            entity_type = _entity_type_from_box(region, frame_width, frame_height)
+            entity_type = _entity_type_from_box(region, frame_width, frame_height, allow_player=False)  # T10.7.B
             # T10.5-C.4.b: region_index disambiguates multiple entities of same type in one frame.
             entity_id = _entity_id_from_type(entity_type, curr_stat.start_frame, region_index)
             regions_to_emit.append((entity_id, entity_type, region))
@@ -353,7 +368,18 @@ def extract_trace(
             curr_state = _assign_state(vx, vy, entity_type)
 
             # Rule 3 + 4 — events
-            events = _infer_events(prev_state, curr_state, action)
+            # T10.7: pass ground streak for debounce; legacy path uses MIN_GROUND_STREAK
+            # (always satisfied) to preserve the existing harness-test contract.
+            if legacy_aggregate_compat:
+                events = _infer_events(prev_state, curr_state, action, ground_streak=MIN_GROUND_STREAK)
+            else:
+                streak = ground_streak_by_entity.get(entity_id, 0)
+                events = _infer_events(prev_state, curr_state, action, ground_streak=streak)
+                # Update streak: increment while grounded, reset on ascending
+                if curr_state in _GROUNDED_STATES:
+                    ground_streak_by_entity[entity_id] = streak + 1
+                elif curr_state == "ascending":
+                    ground_streak_by_entity[entity_id] = 0
 
             # Rule 6 — spawn detection. T10.5-C.4.a: keyed by entity_id.
             was_present = entity_id in prev_seen_by_id

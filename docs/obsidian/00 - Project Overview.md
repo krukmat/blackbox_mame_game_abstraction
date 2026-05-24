@@ -88,6 +88,10 @@ evidence/private/    Private evidence (gitignored)
 | [[ADR-016 RetroArch Autoconfig Importer]] | Import RetroArch autoconfig controller bindings into the existing public device-profile layer with a fixed documented A/B convention |
 | [[ADR-017 Map Init Wizard]] | Interactive prompt-based creation of public device-profile YAML with required-control enforcement and duplicate-binding checks |
 | [[ADR-018 Boot Calibration Public Contract]] | Private calibration sessions may emit only abstract public timing markers, preserving the existing deterministic input-plan execution path |
+| [[ADR-019 Human-Validated Calibration Candidates]] | Calibration tools use a three-phase pattern (picker → human accept/reject → calculator) with structural enforcement of path discipline and reproducible derivation |
+| [[ADR-020 Projectile In-Flight Tracking]] | Public `projectile_velocity_x` must come from real in-flight projectile motion tracked across frames, not player-motion surrogates |
+| [[ADR-021 Enemy Tracking Continuity]] | Generalized `EntityTracker` with per-type `EntitySignature`; persistent enemy IDs across frames; ArthurTracker becomes a wrapper |
+| [[ADR-022 Scroll-Aware Vision Pipeline]] | `ScrollDetector` + MOG2 reset on scroll end with warmup window; resolves ADR-013 MOG2 scroll-reset Known Gap; pipeline order: ArthurTracker → ScrollDetector → MOG2 → EntityTracker |
 
 ## Current Phase
 

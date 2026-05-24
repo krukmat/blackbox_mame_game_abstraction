@@ -16,6 +16,8 @@ class ArthurSignature:
     # Lowered for walking-leg diff blobs: manual_02 frames 1415-1426 show ar=0.43-0.61 (T10.5)
     aspect_ratio_min: float = 0.40
     aspect_ratio_max: float = 1.10
+    # T10.7: empirically calibrated upper bound — bimodal |Δy| valley at 20-30px (real max ~14px)
+    max_frame_jump_px: float = 24.0
 
 
 class ArthurTracker:
@@ -39,6 +41,15 @@ class ArthurTracker:
             return candidates[0]
 
         prev_x, prev_y = prev_center
+        # T10.7: drop candidates that teleported beyond the empirical velocity ceiling
+        max_d_sq = sig.max_frame_jump_px ** 2
+        candidates = [
+            region for region in candidates
+            if (region.center_x - prev_x) ** 2 + (region.center_y - prev_y) ** 2 <= max_d_sq
+        ]
+        if not candidates:
+            return None
+
         return min(
             candidates,
             key=lambda region: (

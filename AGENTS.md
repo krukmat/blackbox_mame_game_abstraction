@@ -67,6 +67,7 @@ Add tests for:
 - Simple typed modules
 - No unnecessary ML dependencies in early phases
 - Prefer interfaces and placeholders over speculative complexity
+- Do not use TDD by default in this project. Implement the change first, then add focused regression tests for the completed behavior when the task requires test coverage.
 
 ## Python Environment
 
@@ -101,6 +102,10 @@ Read the ADRs in `docs/adr/` before analyzing or implementing any feature that t
 | ADR-016 | RetroArch autoconfig importer to `device_profile` YAML with fixed A/B convention and explicit unsupported-field warnings | RetroArch mapping importer, `map import-retroarch`, device profile generation |
 | ADR-017 | Prompt-based `map init` wizard to create `device_profile` YAML with required-control enforcement | `map init`, wizard prompts, device profile generation |
 | ADR-018 | Boot calibration emits abstract timing markers only | boot calibration artifact, calibration CLI, generated boot plans |
+| ADR-019 | Human-validated calibration candidates pattern (picker → accept/reject → calculator) | `apps/mame-harness/visual_jump_picker.py`, future calibration pickers, `<picker>_candidates.json` private artifacts |
+| ADR-020 | Cross-frame projectile continuity for in-flight velocity calibration | projectile tracking, projectile picker, projectile calibration output |
+| ADR-021 | Generalized `EntityTracker` with per-type `EntitySignature`; persistent enemy IDs across frames; `ArthurTracker` becomes a wrapper | `packages/vision/entity_tracker.py`, `packages/vision/arthur_tracker.py`, `packages/vision/trace_extractor.py`, `specs/calibration/gng_enemy_signatures.yaml` |
+| ADR-022 | Scroll-aware vision pipeline: `ScrollDetector` + MOG2 reset on scroll end with warmup window; resolves ADR-013 MOG2 scroll-reset Known Gap | `packages/vision/scroll_detector.py`, `packages/vision/frame_differ.py`, `packages/vision/gng_vision_config.py`, `packages/vision/trace_extractor.py` |
 
 ### Known Gaps (verify before implementing)
 
@@ -162,6 +167,14 @@ ADR numbering: use the next available integer after the highest existing ADR num
 
 This documentation must be produced as part of the planning phase, before any implementation task begins.
 
+## Documentation Update Requirement
+
+Documentation must always be updated as part of the same change when task execution alters the documented workflow, operating instructions, assumptions, constraints, or accepted procedure.
+
+- Do not leave task docs, handoff docs, or other operator-facing instructions stale after changing the effective process in implementation or in agent/user instructions.
+- If a live execution decision changes how a task should be performed, update the corresponding task file before presenting the adjusted procedure as settled.
+- When a change affects both task execution and handoff continuity, update both the task doc and the active handoff doc in the same workstream.
+
 ## Planning Requirements
 
 When a user asks for a plan, the plan must define tasks explicitly and in dependency order.
@@ -201,6 +214,14 @@ Planning rules:
 - `Reference documents` must also include every ADR that governs the task's boundary (see ADR Index above).
 - `Reference documents` must include the relevant `docs/obsidian/` module note if one exists.
 - Add any domain-specific docs needed to understand the task safely before execution.
+
+## Codex Task Presentation Requirement
+
+When presenting a task to the user, any `Recommended model` guidance must be expressed using models actually available in Codex for the current session.
+
+- Do not present inherited model labels from other agent ecosystems (for example `Haiku` or `Sonnet`) as the operative recommendation.
+- If a task file contains legacy or external model labels, treat them as historical context only and translate or flag them as outdated when presenting the task.
+- Reasoning presentation must also be framed in Codex terms for the current session rather than external agent naming conventions.
 
 ## Task Presentation Rule
 

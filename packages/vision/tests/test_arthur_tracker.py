@@ -111,6 +111,38 @@ class TestArthurTracker:
         assert result[1] is not None
         assert result[2] is None
 
+    def test_find_arthur_rejects_candidate_beyond_max_frame_jump(self) -> None:
+        tracker = ArthurTracker()
+        sig = ArthurSignature(max_frame_jump_px=24.0)
+        # center=(99.5, 140); distance from prev_center=(99.5, 170) = 30.0 px → exceeds 24
+        candidate = _region(89, 128, width=22, height=25)
+
+        assert tracker.find_arthur([candidate], sig, prev_center=(99.5, 170.0)) is None
+
+    def test_find_arthur_accepts_candidate_within_max_frame_jump(self) -> None:
+        tracker = ArthurTracker()
+        sig = ArthurSignature(max_frame_jump_px=24.0)
+        # center=(104.5, 178); distance from prev_center=(99.5, 170) = √(25+64) ≈ 9.43 px
+        candidate = _region(94, 166, width=22, height=25)
+
+        assert tracker.find_arthur([candidate], sig, prev_center=(99.5, 170.0)) == candidate
+
+    def test_find_arthur_accepts_candidate_at_threshold_boundary(self) -> None:
+        tracker = ArthurTracker()
+        sig = ArthurSignature(max_frame_jump_px=24.0)
+        # center=(99.5, 194); distance from prev_center=(99.5, 170) = 24.0 exactly → inclusive
+        candidate = _region(89, 182, width=22, height=25)
+
+        assert tracker.find_arthur([candidate], sig, prev_center=(99.5, 170.0)) == candidate
+
+    def test_find_arthur_max_frame_jump_disabled_when_prev_center_none(self) -> None:
+        tracker = ArthurTracker()
+        sig = ArthurSignature(max_frame_jump_px=24.0)
+        # No prev_center — distance filter must not apply regardless of position
+        candidate = _region(20, 160, width=22, height=25)
+
+        assert tracker.find_arthur([candidate], sig) == candidate
+
     def test_track_sequence_outputs_motion_boxes_or_none_only(self) -> None:
         tracker = ArthurTracker()
         sig = ArthurSignature()

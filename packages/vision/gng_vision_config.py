@@ -13,7 +13,7 @@ class GNGVisionConfig:
     hud_y_top: int = 204          # rows >= hud_y_top are masked (bottom 20px of 224px frame)
     min_contour_area: int = 32    # T10.6-E sweep: 32 eliminates hazard noise (72k→0); was 4
     diff_threshold: int = 10      # grayscale diff threshold — pixels > this count as changed
-    player_gap_tolerance: int = 15  # T10.6-E: MOG2 gaps are 5–29 frames; 15 covers most noise without masking real deaths
+    player_gap_tolerance: int = 60  # T10.4 tuning: bridge MOG2 player gaps without masking respawn-delay deaths
     mog2_history: int = 300
     mog2_var_threshold: float = 16.0
     mog2_warmup_frames: int = 50

@@ -140,28 +140,28 @@ The repo is past dry-run setup. The GNG source profile, runner hardening, redact
 Current milestone:
 
 - T01-T07: complete
-- T10.1-T10.3: complete
+- T10.1-T10.6: complete
 - Manual capture helpers are in repo: `scripts/launch_manual_capture.sh` and `scripts/extract_frames.sh`
 - Public trace generation now targets `specs/traces/gng_trace.json` from private evidence under `evidence/private/`
-- Current known next blockers: T10.4 guardrail verification on the final trace and T10.5 ArthurTracker multi-entity work
-- Latest green baseline referenced by the task docs: `243` tests passed
+- T10.4 guardrail verification is complete; the canonical trace was generated from `t10_4_02`
+- Current known next blocker: T11 React Native prototype hookup
+- Latest green baseline referenced by the task docs: `361` tests passed
 
 ```mermaid
 flowchart LR
     A["Done\nT01-T03\nruntime, source profile,\nMAME preflight"]
     B["Done\nT04-T07\nrunner hardening,\nredaction, tests, CLI"]
     C["Done\nT10.1-T10.3\ncapture, trace extraction,\nFPS calibration"]
-    D["Next\nT10.5 then T10.4\nmulti-entity tracking\nbefore final guardrails"]
-    E["Planned\nT11\nReact Native prototype hookup"]
+    D["Done\nT10.4-T10.6\nOpenCV trace\nfinal guardrails"]
+    E["Next\nT11\nReact Native prototype hookup"]
 
     A --> B --> C --> D --> E
 
     classDef done fill:#d8f3dc,stroke:#2d6a4f,color:#1b4332
     classDef next fill:#fff3cd,stroke:#c77900,color:#2d3436
     classDef planned fill:#e9ecef,stroke:#6c757d,color:#212529
-    class A,B,C done
-    class D next
-    class E planned
+    class A,B,C,D done
+    class E next
 ```
 
 After T10/T11, the next documented phase is T12: Original Game Definition. T12 defines Signal Garden as a working original direction and adds gameplay pillars, encounter grammar, scene recipes, transformation rules, progression, and originality validation before the RN prototype moves beyond clean-room mechanics playback.

@@ -22,7 +22,7 @@ What happens:
 - At frame ~1505, Arthur is controllable — **user plays from here**
 - When user closes MAME, the script returns
 
-Tell the user: *"MAME is launching. The boot runs automatically (~25s). Controls once Arthur appears: ← → move, Left Alt jump, Left Ctrl fire. Close the window when you finish the level."*
+Tell the user: *"MAME is launching. The boot runs automatically (~25s). Controls once Arthur appears: ← → move, Option jump, Control fire. Close the window when you finish the level."*
 
 ### Step 2 — Extract frames and regenerate trace
 

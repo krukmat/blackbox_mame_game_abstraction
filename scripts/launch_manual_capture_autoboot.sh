@@ -23,8 +23,8 @@
 #
 # CONTROLS (once Arthur is controllable, ~25s after launch):
 #   ← →        Move left / right
-#   Left Alt    Jump
-#   Left Ctrl   Fire / attack
+#   Option      Jump
+#   Control     Fire / attack
 #   Esc         Quit MAME (ends recording)
 #
 set -euo pipefail
@@ -101,8 +101,8 @@ echo "    Frame 1505: Arthur is controllable — YOU play from here"
 echo ""
 echo "  Controls:"
 echo "    ← →        Move"
-echo "    Left Alt    Jump"
-echo "    Left Ctrl   Fire"
+echo "    Option      Jump"
+echo "    Control     Fire"
 echo "    Esc         Quit (ends recording)"
 echo ""
 echo "  Recording to: ${DISPLAY_AVI_PATH}"

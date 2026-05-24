@@ -75,6 +75,10 @@ Future boot calibration work remains bounded by ADR-018:
 - that calibration artifact would regenerate or replace the fixed-wait boot portions of the sequence/generation flow
 - it must not introduce a second GNG-specific runtime model outside the same generated-plan boundary
 
+Operational runbook:
+
+- [`docs/gng_execution_process.md`](gng_execution_process.md)
+
 ## Clean-Room Boundary
 
 These files are public clean-room artifacts. They may contain abstract mappings only.
