@@ -66,7 +66,7 @@ The tasks below must execute in this order because each later task depends on a 
     - `T10.7.B` ✅ Entity-ID Collision Fix *(allow_player=False for remaining_regions; zero duplicate player frames in run_t10_7_jumps trace)*
     - `T10.7.C` Walk-Segment Picker — controlled locomotion calibration *(ADR-019 pattern; resolves 1.8709/s vs 13.4935/s conflict)*
     - `T10.7.D` Projectile Velocity Decision ✅ *(Option B selected — surrogate rejected)*
-    - `T10.7.E` Projectile In-Flight Tracking *(new ADR-020; real projectile measurement required before sync)*
+    - `T10.7.E` Projectile In-Flight Tracking ✅ *(projectile_velocity_x=0.9303/s from 5 human-validated trajectories in run_t10_7_proj2; ADR-020 contract satisfied)*
     - `T10.7 ST5` Propagate all calibrated values to mechanics YAML + regenerate episodes *(blocked on T10.7.C + T10.7.E)*
 16. `T10.8` Enemy Tracking Continuity (Stage 1 Screen 1) *(new ADR-021; persistent enemy IDs required before T11.2 quality)*
     - `T10.8.1` Enemy Signature Catalog and Calibration (zombi, crow)

@@ -1,15 +1,19 @@
 schema_version: '1.0'
 source_trace: gng_trace.json
 ms_per_frame: 16.768
-generated_by: T10.7.A visual_jump_picker — human-validated candidates (ADR-019)
+generated_by: T10.7.E projectile_trajectory_picker — human-validated candidates (ADR-019/ADR-020)
 calibration_method: kinematic_from_human_validated_candidates
 calibration_note: >
-  Values derived from 2 human-validated jump candidates (IDs 2 and 3) from
-  run_t10_7_jumps. Each candidate was visually confirmed by the operator against
-  private PNG frames. Kinematic formula: v0 = 2H/t_asc, g = 2H/t_asc^2.
-  t_peak_predicted = t_peak_observed = 4 frames (0% error). Gate: PASS.
-  Locomotion velocity updated in T10.7.C from human-validated walk candidates
-  (IDs 3, 5, 8, 10) from run_t10_7_walk.
+  Values derived from human-validated candidates across three calibration runs:
+  jump_velocity_y and gravity_units_per_frame from 2 jump candidates (IDs 2, 3)
+  in run_t10_7_jumps (T10.7.A). locomotion_velocity_x from 4 walk candidates
+  (IDs 3, 5, 8, 10) in run_t10_7_walk (T10.7.C). projectile_velocity_x from 5
+  projectile trajectory candidates (IDs 1, 2, 3, 4, 5) in run_t10_7_proj2
+  (T10.7.E). Each candidate was visually confirmed by the operator against
+  private PNG frames. Jump kinematic: v0 = 2H/t_asc, g = 2H/t_asc^2;
+  t_peak_predicted = t_peak_observed = 4 frames (0% error). Projectile value is
+  median of per-frame |Δx| across all accepted trajectory points; replaces
+  pre-ADR-020 player_velocity_at_fire surrogate.
 constants:
   locomotion_velocity_x:
     value_per_frame: 0.004671
@@ -43,10 +47,13 @@ constants:
       g = 2*H_px/t_asc^2, averaged in px/frame² then normalized by frame_height=224.
       t_peak_check = v0/g = 4.0 frames (PASS, error=0%).
   projectile_velocity_x:
-    value_per_frame: 0.003138
-    value_per_second: 0.1871
-    sample_count: 21
-    std_dev: 0.011928
-    source_method: player_velocity_at_fire_surrogate
-    note: Projectile in-flight tracking unavailable (ADR-013); derived from player
-      velocity_x at fire events.
+    value_per_frame: 0.015600
+    value_per_second: 0.9303
+    sample_count: 65
+    std_dev: 0.002508
+    source_method: human_validated_projectile_trajectory
+    note: >
+      Derived from 5 human-validated projectile trajectory candidates
+      (IDs 1, 2, 3, 4, 5) from run_t10_7_proj2 via the ADR-019/ADR-020 workflow.
+      Each sample is absolute x displacement per frame between consecutive
+      trajectory points. Replaces pre-ADR-020 player_velocity_at_fire surrogate.

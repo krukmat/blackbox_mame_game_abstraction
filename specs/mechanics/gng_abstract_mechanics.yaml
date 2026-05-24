@@ -19,8 +19,10 @@ calibration_status: calibrated  # T11.3: physics constants measured from gng_tra
 # Coordinate scale: GNG native resolution 256×224 pixels. One abstract unit = one pixel.
 # movement_tolerance = 2.0 units (covers sub-pixel rounding; does not mask real errors).
 # velocity_x (locomotion/projectile), velocity_y (jump), and gravity_units_per_frame
-# were calibrated in T11.3 from specs/traces/gng_trace.json.
-# spawn_delay_frames remains uncalibrated — projectile in-flight tracking not yet available (ADR-013).
+# were calibrated from human-validated candidates: locomotion_velocity_x from
+# run_t10_7_walk (T10.7.C), jump/gravity from run_t10_7_jumps (T10.7.A), and
+# projectile_velocity_x from run_t10_7_proj2 (T10.7.E, ADR-019/ADR-020).
+# spawn_delay_frames remains uncalibrated.
 timing:
   fps: 59.6374
   ms_per_frame: 16.768
@@ -148,11 +150,11 @@ mechanics:
         type: number
         required: true
         unit: abstract
-        calibrated_value: 0.143111
-        calibrated_value_per_second: 8.5348
-        sample_count: 54
+        calibrated_value: 0.015600
+        calibrated_value_per_second: 0.9303
+        sample_count: 65
         calibration_source: specs/calibration/gng_physics_calibration.yaml
-        calibration_method: player_velocity_at_fire_surrogate
+        calibration_method: human_validated_projectile_trajectory
       velocity_y:         { type: number,  required: true, default: 0.0 }
       state:
         type: string
