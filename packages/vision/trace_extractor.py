@@ -137,24 +137,35 @@ def _infer_events(
     curr_state: str,
     input_action: str,
     ground_streak: int | None = None,
+    input_events: list[str] | None = None,
 ) -> list[str]:
     """Return the event list for a single frame using Rule 3 and Rule 4.
 
     Rule 3: state transition table from T10.2.2.1.
-    Rule 4: input plan injection — fire always; jump_start only when not already
-            inferred from the transition and entity is not already ascending.
+    Rule 4: input-driven events (`fire`, `jump_start`).
+
+    Event sourcing (T20.2 / ADR-023):
+    - When ``input_events`` is provided (ground-truth input timeline mode), the
+      input-driven events are taken from the real per-frame button edges. The CV
+      (Rule 3) ``jump_start`` is suppressed so the button press is the single
+      authoritative source — this removes the velocity-threshold noise that
+      ADR-019 had to compensate for.
+    - When ``input_events`` is None (legacy), Rule 4 derives ``fire``/``jump_start``
+      from the planned ``input_action``, with the T10.7 ground-streak debounce.
 
     All returned strings are members of T09.2 events.enum.
     land and fall are mutually exclusive.
     """
     events: list[str] = []
+    timeline_mode = input_events is not None
 
     # --- Rule 3: state transition table ---
 
     # Jump arc
     if prev_state in _PRE_JUMP_STATES and curr_state == "ascending":
-        # T10.7: suppress jump_start unless entity was grounded for enough consecutive frames
-        if ground_streak is None or ground_streak >= MIN_GROUND_STREAK:
+        # In timeline mode the button edge owns jump_start (see Rule 4 below).
+        # Legacy: T10.7 ground-streak debounce suppresses spurious detections.
+        if not timeline_mode and (ground_streak is None or ground_streak >= MIN_GROUND_STREAK):
             events.append("jump_start")
     elif prev_state == "ascending" and curr_state == "descending":
         events.append("jump_peak")
@@ -178,14 +189,22 @@ def _infer_events(
     elif prev_state == "in_flight" and curr_state == "despawned":
         events.append("despawn")
 
-    # --- Rule 4: input plan injection ---
+    # --- Rule 4: input-driven events ---
 
-    if input_action == "fire":
-        events.append("fire")
-
-    if input_action == "jump" and curr_state != "ascending":
-        if "jump_start" not in events:
+    if timeline_mode:
+        # Ground-truth button edges (computed in extract_trace from input_timeline).
+        if "fire" in input_events:  # button2 rising edge
+            events.append("fire")
+        # jump_start on button1 rising edge, gated to a grounded precondition so a
+        # no-op mid-air press is not counted as a jump.
+        if "jump_start" in input_events and prev_state in _PRE_JUMP_STATES and "jump_start" not in events:
             events.append("jump_start")
+    else:
+        if input_action == "fire":
+            events.append("fire")
+        if input_action == "jump" and curr_state != "ascending":
+            if "jump_start" not in events:
+                events.append("jump_start")
 
     # Deduplication — preserve order, remove any accidental duplicates
     return list(dict.fromkeys(events))
@@ -244,12 +263,17 @@ def extract_trace(
     frame_width: int = 256,
     frame_height: int = 224,
     config: "GNGVisionConfig | None" = None,
+    input_timeline: "dict[int, frozenset[str]] | None" = None,
 ) -> list["TraceEntry"]:
     """Assemble a list of TraceEntry records from FrameDiffStat + InputPlan.
 
     One TraceEntry per frame per detected entity region.
     Applies Rules 1–6 from T10.2.2.1 in order.
     Output passes ensure_no_private_paths — no path strings are emitted.
+
+    T20.2 / ADR-023: when ``input_timeline`` (frame -> set of effective buttons) is
+    provided, input-driven player events (`fire`, `jump_start`) are derived from the
+    ground-truth button edges instead of the planned action / CV thresholds.
     """
     from behavioral_diff import TraceEntry  # runtime import, safe per conftest sys.path
 
@@ -257,6 +281,7 @@ def extract_trace(
     # Index input frames by frame_index for O(1) lookup
     input_by_frame: dict[int, str] = {fi.frame_index: fi.action for fi in frame_inputs}
     legacy_aggregate_compat = input_plan.game_id == "gng"
+    timeline_present = input_timeline is not None
 
     # T10.6-E: player_gap_tolerance from config (0 = original immediate-die behavior)
     player_gap_tolerance: int = config.player_gap_tolerance if config is not None else 0
@@ -286,6 +311,18 @@ def extract_trace(
 
     for curr_stat in diff_stats:
         action = input_by_frame.get(curr_stat.start_frame, "noop")
+
+        # T20.2 / ADR-023: ground-truth player input edges for this frame.
+        # button2 = fire, button1 = jump (see input_planner._buttons_for_action).
+        player_input_events: list[str] | None = None
+        if timeline_present:
+            curr_buttons = input_timeline.get(curr_stat.start_frame, frozenset())
+            prev_buttons = input_timeline.get(curr_stat.start_frame - 1, frozenset())
+            player_input_events = []
+            if "button2" in curr_buttons and "button2" not in prev_buttons:
+                player_input_events.append("fire")
+            if "button1" in curr_buttons and "button1" not in prev_buttons:
+                player_input_events.append("jump_start")
 
         # T10.5-C.4.c.1: detect disappearances — entities seen last frame but absent now.
         # Runs on both empty and partial frames before emitting new entries.
@@ -368,9 +405,17 @@ def extract_trace(
             curr_state = _assign_state(vx, vy, entity_type)
 
             # Rule 3 + 4 — events
-            # T10.7: pass ground streak for debounce; legacy path uses MIN_GROUND_STREAK
-            # (always satisfied) to preserve the existing harness-test contract.
-            if legacy_aggregate_compat:
+            # T20.2 / ADR-023: when a ground-truth input timeline is present, the
+            # player's input-driven events come from real button edges; CV jump_start
+            # is suppressed. Otherwise fall back to the legacy/plan-based paths.
+            if timeline_present:
+                entity_input_events = player_input_events if entity_id == "player" else []
+                events = _infer_events(
+                    prev_state, curr_state, action, input_events=entity_input_events
+                )
+            elif legacy_aggregate_compat:
+                # T10.7: legacy path uses MIN_GROUND_STREAK (always satisfied) to
+                # preserve the existing harness-test contract.
                 events = _infer_events(prev_state, curr_state, action, ground_streak=MIN_GROUND_STREAK)
             else:
                 streak = ground_streak_by_entity.get(entity_id, 0)

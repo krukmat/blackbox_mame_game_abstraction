@@ -80,6 +80,28 @@ Values written to `specs/calibration/gng_physics_calibration.yaml` and `apps/rn-
 
 See [[ADR-019 Human-Validated Calibration Candidates]] and `docs/tasks/gng_source_integration/T10.7.A-visual-calibration.md`.
 
+## T10.7 — Remediation outcome (2026-05-24)
+
+The full T10.7 chain established the current public physics constants used by
+the project:
+
+- `locomotion_velocity_x = 0.2786 /s` from T10.7.C walk-segment validation
+- `jumpVelocity_y = 0.4668 /s` and `gravity = 0.1167 /s²` from T10.7.A
+- `projectile_velocity_x = 0.9303 /s` from T10.7.E in-flight projectile tracking
+
+Operationally, the vision stack now depends on three layers together:
+
+1. [[ADR-013 OpenCV Vision Backend]] for foreground extraction, HUD masking, and
+   short player-gap tolerance
+2. [[ADR-012 Entity Signature-Based Player Identification]] for player-region
+   isolation
+3. T10.7 follow-up guardrails (`max_frame_jump_px`, ground-streak debounce,
+   duplicate-player suppression) to keep calibration traces physically plausible
+
+The remaining vision-side risks are no longer the superseded T11.3 noisy
+jump/gravity values. The active gaps are post-scroll MOG2 reset and the lack of
+cross-frame enemy identity continuity until the T10.8/T10.9 line completes.
+
 ## Related
 
 - [[Private vs Public Boundary]]

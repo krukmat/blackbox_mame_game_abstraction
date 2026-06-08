@@ -6,6 +6,15 @@ Build a clean-room black-box game abstraction framework.
 
 The system observes games through MAME, captures private evidence, infers abstract mechanics, creates new asset recipes, and supports a React Native reimplementation.
 
+## Agent Workflow Guide (authoritative for process)
+
+`docs/playbooks/AGENT_WORKFLOW_GUIDE.md` is the authoritative source for agent-facing
+**process** — workflow, task presentation, planning discipline, reasoning/effort grading,
+model selection (Codex + Claude Code), ADR propagation, testing/commit rules, handoff format,
+and language policy. It overrides this file on those process topics; this file applies for any
+topic it does not cover. The clean-room guardrails (see Forbidden / Allowed below) are
+inviolable and are never overridden.
+
 ## Forbidden
 
 Do not:
@@ -106,6 +115,9 @@ Read the ADRs in `docs/adr/` before analyzing or implementing any feature that t
 | ADR-020 | Cross-frame projectile continuity for in-flight velocity calibration | projectile tracking, projectile picker, projectile calibration output |
 | ADR-021 | Generalized `EntityTracker` with per-type `EntitySignature`; persistent enemy IDs across frames; `ArthurTracker` becomes a wrapper | `packages/vision/entity_tracker.py`, `packages/vision/arthur_tracker.py`, `packages/vision/trace_extractor.py`, `specs/calibration/gng_enemy_signatures.yaml` |
 | ADR-022 | Scroll-aware vision pipeline: `ScrollDetector` + MOG2 reset on scroll end with warmup window; resolves ADR-013 MOG2 scroll-reset Known Gap | `packages/vision/scroll_detector.py`, `packages/vision/frame_differ.py`, `packages/vision/gng_vision_config.py`, `packages/vision/trace_extractor.py` |
+| ADR-023 | Ground-truth input timeline: MAME Lua records effective per-frame input (injected plan OR human) to a private `input_timeline.json`; authoritative source for input-driven events, CV inference demoted to fallback | `scripts/mame_autoboot.lua`, `apps/mame-harness/input_timeline.py`, `packages/schemas/input_timeline.schema.json` |
+| ADR-024 | Designed isolation-experiment calibration: each experiment plan isolates one mechanic (embedded `experiment` block, structurally-enforced isolation) so constants are measured with no human picker; default method, ADR-019 demoted to fallback | `packages/schemas/experiment_plan.schema.json`, `apps/mame-harness/input_planner.py`, `plans/sequences/gng_exp_*.yaml` |
+| ADR-026 | Internal-state (RAM) observation clean-room boundary (**Accepted**, constrained): MAME RAM may be read via Lua using community cheat-DB addresses as a private measurement/verification accelerator only; memory is not the published source of truth (clause 4); public output stays numbers-only | `scripts/mame_autoboot.lua`, `apps/mame-harness/guardrails.py`, memory-tap calibration (T20.5/T20.6) |
 
 ### Known Gaps (verify before implementing)
 
@@ -116,10 +128,10 @@ These are documented open limitations. If your task touches one of these areas, 
 - **ADR-004 / stdout-stderr**: `MameExecution.stdout` and `stderr` are written verbatim to public metadata. Subprocess output may contain local machine paths — redaction is not yet implemented.
 - **ADR-004 / status type**: `MameRunResult.status` is a plain `str`. Typos are not caught at definition time.
 - **ADR-005 / driver contract**: Preflight has a hardcoded `if profile.profile_id == "gng"` branch. Adding a second game requires a new branch, not a generic contract.
-- **ADR-006 / vision stub**: Consecutive-frame diff is implemented. OpenCV backend (T10.6) is planned and will improve detection rate from ~24% to >60%.
+- **ADR-006 / PGM format**: Only P2 ASCII PGM is supported. P5 binary PGM is not. MAME snapshot compatibility needs verification.
+- **ADR-012 / player signature**: `ArthurSignature` defaults are calibrated for GNG at 256×224. T10.7 added `max_frame_jump_px` to reject implausible player teleports, but crouch/death animations can still create short `find_arthur` gaps.
 - **ADR-013 / MOG2 scroll reset**: Background model becomes invalid on horizontal camera scroll (stage 2+). Stage 1 runs unaffected. Tracked as Known Gap until T12 scope is defined.
 - **ADR-013 / enemy tracking**: Cross-frame enemy identity continuity is not implemented. Enemy entities remain ephemeral per-frame IDs (`enemy_a_{frame}`).
-- **ADR-006 / PGM format**: Only P2 ASCII PGM is supported. P5 binary PGM is not. MAME snapshot compatibility needs verification.
 - **ADR-007 / theme variants**: `suggested_new_theme_variants` are the same three strings for every entity. Should be varied or mechanics-derived.
 - **ADR-008 / movement tolerance**: Default tolerance (1.0 unit) is a placeholder. Correct value requires real captured evidence to calibrate.
 - **ADR-008 / state vocabulary**: State and event strings must match exactly. No canonical vocabulary is enforced — naming drift causes false mismatches.

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Input Timeline",
+  "description": "T20.1 / ADR-023 — ground-truth per-frame effective input state (injected plan OR human keyboard) recorded by the MAME Lua bridge. Private artifact under evidence/private/run_<id>/logs/input_timeline.json.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["frame", "buttons"],
+    "properties": {
+      "frame": { "type": "integer", "minimum": 0 },
+      "buttons": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": ["coin", "start", "left", "right", "up", "down", "button1", "button2"]
+        },
+        "uniqueItems": true
+      }
+    },
+    "additionalProperties": false
+  }
+}

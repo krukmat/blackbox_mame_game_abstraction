@@ -1,0 +1,30 @@
+# T20.3 / ADR-024 — isolation experiment: idle baseline (noise floor).
+# Boot prefix reaches frame 1505 (Arthur controllable), then no input.
+plan_name: gng_exp_idle_baseline
+game_id: gngb
+experiment:
+  experiment_id: idle_baseline
+  isolated_variable: baseline
+  measurement_window:
+    start_frame: 1525
+    end_frame: 1684
+  expected_signal: none
+steps:
+- action: noop
+  frames: 950
+  notes: 'Boot: RAM/ROM check + attract mode.'
+- action: insert_coin
+  frames: 10
+  notes: Insert coin.
+- action: noop
+  frames: 60
+  notes: Wait for 1P start prompt.
+- action: press_start
+  frames: 5
+  notes: Press 1P start.
+- action: noop
+  frames: 480
+  notes: Title transition + stage 1 intro. Controllable at frame 1505.
+- action: noop
+  frames: 180
+  notes: Idle baseline. No input — measure detection noise floor / ground level.

@@ -92,6 +92,9 @@ evidence/private/    Private evidence (gitignored)
 | [[ADR-020 Projectile In-Flight Tracking]] | Public `projectile_velocity_x` must come from real in-flight projectile motion tracked across frames, not player-motion surrogates |
 | [[ADR-021 Enemy Tracking Continuity]] | Generalized `EntityTracker` with per-type `EntitySignature`; persistent enemy IDs across frames; ArthurTracker becomes a wrapper |
 | [[ADR-022 Scroll-Aware Vision Pipeline]] | `ScrollDetector` + MOG2 reset on scroll end with warmup window; resolves ADR-013 MOG2 scroll-reset Known Gap; pipeline order: ArthurTracker → ScrollDetector → MOG2 → EntityTracker |
+| [[ADR-023 Ground-Truth Input Timeline]] | MAME Lua records the effective per-frame input (injected plan OR human keyboard) to a private `input_timeline.json`; authoritative source for input-driven events; CV event inference demoted to fallback |
+| [[ADR-024 Designed Experiment Calibration]] | Designed isolation experiments (one mechanic each; structurally-enforced isolation window) calibrate constants with no human picker; default method; ADR-019 pickers demoted to fallback |
+| [[ADR-026 Internal-State Observation Boundary]] | Accepted (constrained): MAME RAM may be read via Lua (community cheat-DB addresses) as a private measurement/verification accelerator only — memory is not the published source of truth (clause 4); public output stays numbers-only; formalizes/revisits ADR-022's informal rejection of Lua introspection |
 
 ## Current Phase
 

@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Experiment Plan",
+  "description": "T20.3 / ADR-024 — an input plan plus an `experiment` block that isolates exactly one mechanic so its constant can be calibrated deterministically (no human picker).",
+  "type": "object",
+  "required": ["plan_name", "game_id", "steps"],
+  "properties": {
+    "plan_name": { "type": "string" },
+    "game_id": { "type": "string" },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["action", "frames"],
+        "properties": {
+          "action": { "type": "string" },
+          "frames": { "type": "integer", "minimum": 1 },
+          "notes": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "experiment": {
+      "type": "object",
+      "required": [
+        "experiment_id",
+        "isolated_variable",
+        "measurement_window",
+        "expected_signal"
+      ],
+      "properties": {
+        "experiment_id": { "type": "string" },
+        "isolated_variable": {
+          "type": "string",
+          "enum": ["baseline", "locomotion_velocity_x", "jump_arc", "projectile"]
+        },
+        "measurement_window": {
+          "type": "object",
+          "required": ["start_frame", "end_frame"],
+          "properties": {
+            "start_frame": { "type": "integer", "minimum": 0 },
+            "end_frame": { "type": "integer", "minimum": 0 }
+          },
+          "additionalProperties": false
+        },
+        "expected_signal": {
+          "type": "string",
+          "enum": ["none", "monotone_x", "parabolic_y", "linear_x"]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

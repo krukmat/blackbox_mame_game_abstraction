@@ -26,6 +26,7 @@ from guardrails import PRIVATE_EVIDENCE_ROOT, ensure_private_evidence_path, ensu
 from input_planner import load_input_plan
 from map_init_wizard import run_map_init_wizard
 from mame_runner import MameRunRequest, run_mame
+from memory_map import export_memory_map_json  # T20.5 / ADR-026
 from mapping_compiler import compile_mapping_files
 from mapping_profiles import load_mapping_profile
 from metadata_writer import write_public_metadata
@@ -43,6 +44,12 @@ REPO_SAFE_COMMAND_PATHS = {
     "scripts/mame_autoboot.lua",
 }
 MAME_INPUT_PLAN_ENV_VAR = "BLACKBOX_INPUT_PLAN_PATH"
+MAME_INPUT_TIMELINE_ENV_VAR = "BLACKBOX_INPUT_TIMELINE_PATH"  # T20.1 (ADR-023)
+MAME_MEMORY_MAP_ENV_VAR = "BLACKBOX_MEMORY_MAP_PATH"  # T20.5 (ADR-026) — private JSON for Lua
+MAME_STATE_TIMELINE_ENV_VAR = "BLACKBOX_STATE_TIMELINE_PATH"  # T20.5 (ADR-026)
+# Operator-facing local YAML address map (gitignored); converted to the private JSON above.
+MEMORY_MAP_YAML_ENV_VAR = "BLACKBOX_MEMORY_MAP_YAML"
+DEFAULT_MEMORY_MAP_YAML = Path("blackbox.local.memory_map.yaml")
 DEFAULT_BOOTSTRAP_CONFIG_PATH = Path("blackbox.local.yaml")
 DEFAULT_ENV_FILE_PATH = Path(".env")
 DEFAULT_TRACE_OUTPUT_PATH = Path("specs/traces/gng_trace.json")
@@ -169,6 +176,25 @@ def build_parser() -> argparse.ArgumentParser:
     map_import_retroarch_parser.add_argument("--out", type=Path, required=True)
     map_import_retroarch_parser.add_argument("--profile-id")
 
+    # T20.4b — one-command isolation-experiment battery (capture→extract→calibrate→verdict).
+    battery_parser = subcommands.add_parser(
+        "calibrate-battery",
+        help="Run the isolation-experiment battery end to end with one verdict table",
+    )
+    battery_parser.add_argument("--rom", default="gng")
+    battery_parser.add_argument("--rom-path", type=Path)
+    battery_parser.add_argument("--mame-binary", default="mame")
+    battery_parser.add_argument("--memory-map-yaml", type=Path, default=None)
+    battery_parser.add_argument(
+        "--output", type=Path, default=Path("specs/calibration/gng_experiment_calibration.yaml")
+    )
+    battery_parser.add_argument(
+        "--run-id", action="append", default=[],
+        help="stem=run_id to reuse an existing capture instead of launching MAME (repeatable)",
+    )
+    battery_parser.add_argument("--ffmpeg-binary", default="ffmpeg")
+    battery_parser.add_argument("--print-json", action="store_true")
+
     doctor_parser = subcommands.add_parser("doctor", help="Check local MAME/bootstrap prerequisites")
     doctor_parser.add_argument("--config", type=Path, default=DEFAULT_BOOTSTRAP_CONFIG_PATH)
     doctor_parser.add_argument("--env-file", type=Path, default=DEFAULT_ENV_FILE_PATH)
@@ -198,7 +224,32 @@ def handle_run(args: argparse.Namespace) -> dict[str, object]:
     state = RunState(run_id=run_id)
     capture = create_capture_session(run_id)
     input_plan_json_path = plan.export_to_json(capture.logs_dir / "input_plan.json")
+    # T20.1 (ADR-023): the Lua bridge writes the ground-truth input timeline here.
+    input_timeline_json_path = capture.logs_dir / "input_timeline.json"
     source_profile = get_source_profile(args.source_profile) if args.source_profile else None
+
+    # T20.5 / ADR-026: optional RAM memory tap. If a local YAML address map is configured
+    # (env var or default file), convert it to a private JSON the Lua reads and enable the
+    # private state timeline. Absent config = no tap (graceful; vision fallback).
+    mame_environment = {
+        MAME_INPUT_PLAN_ENV_VAR: str(input_plan_json_path.resolve()),
+        MAME_INPUT_TIMELINE_ENV_VAR: str(input_timeline_json_path.resolve()),
+    }
+    memory_map_yaml_env = os.environ.get(MEMORY_MAP_YAML_ENV_VAR)
+    memory_map_yaml_path = (
+        Path(memory_map_yaml_env)
+        if memory_map_yaml_env
+        else (DEFAULT_MEMORY_MAP_YAML if DEFAULT_MEMORY_MAP_YAML.exists() else None)
+    )
+    if memory_map_yaml_path is not None and memory_map_yaml_path.exists():
+        memory_map_json_path = export_memory_map_json(
+            memory_map_yaml_path, capture.logs_dir / "memory_map.json"
+        )
+        mame_environment[MAME_MEMORY_MAP_ENV_VAR] = str(memory_map_json_path.resolve())
+        mame_environment[MAME_STATE_TIMELINE_ENV_VAR] = str(
+            (capture.logs_dir / "state_timeline.json").resolve()
+        )
+
     request = MameRunRequest(
         game_shortname=args.rom,
         mame_binary=args.mame_binary,
@@ -210,7 +261,7 @@ def handle_run(args: argparse.Namespace) -> dict[str, object]:
         snapshot_dir=capture.frames_dir,
         aviwrite_path=capture.video_dir / "capture.avi",
         autoboot_script=Path("scripts/mame_autoboot.lua"),
-        environment={MAME_INPUT_PLAN_ENV_VAR: str(input_plan_json_path.resolve())},
+        environment=mame_environment,
         frames_to_run=args.frames_to_run,
         seconds_to_run=args.seconds_to_run,
         dry_run=args.dry_run,
@@ -439,6 +490,42 @@ def handle_map_import_retroarch(args: argparse.Namespace) -> dict[str, object]:
     }
 
 
+def handle_calibrate_battery(args: argparse.Namespace) -> dict[str, object]:
+    # T20.4b — orchestrate the battery; print the verdict table; return a JSON summary.
+    from battery_calibrator import calibrate_battery, format_verdict_table
+
+    run_ids: dict[str, str] = {}
+    for item in args.run_id:
+        if "=" in item:
+            stem, rid = item.split("=", 1)
+            run_ids[stem.strip()] = rid.strip()
+
+    # Fall back to the local bootstrap (.env) so the battery is truly one-command.
+    rom_path = args.rom_path or (
+        Path(os.environ["BLACKBOX_ROM_PATH"]) if os.environ.get("BLACKBOX_ROM_PATH") else None
+    )
+    mame_binary = os.environ.get("BLACKBOX_MAME_BINARY") or args.mame_binary
+    ffmpeg_binary = os.environ.get("BLACKBOX_FFMPEG_BINARY") or args.ffmpeg_binary
+
+    verdicts = calibrate_battery(
+        rom=args.rom,
+        rom_path=rom_path,
+        mame_binary=mame_binary,
+        memory_map_yaml=args.memory_map_yaml,
+        run_ids=run_ids,
+        output_path=args.output,
+        ffmpeg_binary=ffmpeg_binary,
+    )
+    print(format_verdict_table(verdicts))
+    return {
+        "verdicts": [
+            {"experiment_id": v.experiment_id, "status": v.status, "reason": v.reason}
+            for v in verdicts
+        ],
+        "rerun": [v.experiment_id for v in verdicts if v.status == "RERUN"],
+    }
+
+
 def handle_doctor(args: argparse.Namespace) -> dict[str, object]:
     settings, config_sources, config_issues = _load_bootstrap_settings(
         config_path=args.config,
@@ -626,6 +713,8 @@ def main() -> int:
             result = handle_map_import_retroarch(args)
         else:
             result = handle_placeholder(f"map {args.map_command}")
+    elif args.command == "calibrate-battery":
+        result = handle_calibrate_battery(args)
     elif args.command == "doctor":
         result = handle_doctor(args)
     else:

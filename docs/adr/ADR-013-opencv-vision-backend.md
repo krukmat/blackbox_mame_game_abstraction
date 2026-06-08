@@ -98,6 +98,20 @@ Independent of OpenCV but enabled by the improved detection: introduce `player_g
 
 The gap tolerance is a `GNGVisionConfig` field (not hardcoded in `TraceExtractor`) so it remains game-configurable.
 
+### Post-acceptance follow-up (T10.7)
+
+ADR-013 improved player recall substantially, but it did not by itself eliminate
+all trace noise. T10.7 added two complementary guardrails on top of this ADR's
+backend decision:
+
+- `ArthurSignature.max_frame_jump_px = 24.0` in `ArthurTracker` to reject
+  implausible frame-to-frame player teleports before nearest-neighbor selection
+- `MIN_GROUND_STREAK = 3` debounce in `trace_extractor._infer_events` to
+  suppress repeated false `jump_start` emissions from brief grounded flicker
+
+These are follow-up mitigations around the ADR-013 backend, not changes to the
+core decision to use OpenCV + MOG2 + HUD masking.
+
 ## Consequences
 
 **Positive**

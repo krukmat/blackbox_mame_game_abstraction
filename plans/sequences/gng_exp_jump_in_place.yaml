@@ -1,0 +1,36 @@
+# T20.3 / ADR-024 — isolation experiment: jump in place (jump_velocity_y + gravity).
+# Boot prefix reaches frame 1505, settle, single jump, no horizontal input.
+plan_name: gng_exp_jump_in_place
+game_id: gngb
+experiment:
+  experiment_id: jump_in_place
+  isolated_variable: jump_arc
+  measurement_window:
+    start_frame: 1525
+    end_frame: 1600
+  expected_signal: parabolic_y
+steps:
+- action: noop
+  frames: 950
+  notes: 'Boot: RAM/ROM check + attract mode.'
+- action: insert_coin
+  frames: 10
+  notes: Insert coin.
+- action: noop
+  frames: 60
+  notes: Wait for 1P start prompt.
+- action: press_start
+  frames: 5
+  notes: Press 1P start.
+- action: noop
+  frames: 480
+  notes: Title transition + stage 1 intro. Controllable at frame 1505.
+- action: noop
+  frames: 20
+  notes: Settle before the isolated action.
+- action: jump
+  frames: 5
+  notes: Single jump press (button1). No horizontal input — vertical arc only.
+- action: noop
+  frames: 90
+  notes: Ascend, peak, descend, land. Parabolic y(t) → jump_velocity_y + gravity.

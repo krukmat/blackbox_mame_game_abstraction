@@ -1,0 +1,30 @@
+# T20.5 / ADR-026 — RAM address map TEMPLATE (committed example, placeholders only).
+#
+# HOW TO USE (clean-room contract, ADR-026):
+#   1. Copy this file to `blackbox.local.memory_map.yaml` (gitignored — never commit it).
+#   2. Fill `addr` with addresses sourced from a COMMUNITY cheat database (e.g. MAME cheat
+#      XML for gngb). Cite your source in a comment. Do NOT disassemble the ROM to find them.
+#   3. The harness converts your local YAML to a PRIVATE JSON under
+#      evidence/private/run_<id>/logs/memory_map.json and points the Lua bridge at it.
+#   4. Per-frame numeric state is written to a PRIVATE state_timeline.json. Only derived
+#      abstract numbers may later reach public specs (clause 3/4); raw addresses and values
+#      stay private.
+#
+# This template contains NO real addresses — `addr: 0` are placeholders. With placeholders
+# the tap reads meaningless values; replace them locally before relying on the output.
+
+cpu_tag: ":maincpu"   # MAME device tag for the main CPU (gngb default)
+space: program        # address space to read
+
+entities:
+  - name: player
+    fields:
+      x: { addr: 0, size: u8 }            # placeholder — replace from community cheat DB
+      y: { addr: 0, size: u8 }            # placeholder
+      state_flags: { addr: 0, size: u8 }  # placeholder
+
+  # Add more entities as your cheat-DB source documents them, e.g.:
+  # - name: enemy_a
+  #   fields:
+  #     x: { addr: 0, size: u8 }
+  #     y: { addr: 0, size: u8 }

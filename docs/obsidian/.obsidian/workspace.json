@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "ADR-018 Boot Calibration Public Contract.md",
+                "file": "00 - Project Overview.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "ADR-018 Boot Calibration Public Contract"
+              "title": "00 - Project Overview"
             }
           }
         ]
@@ -185,13 +185,16 @@
   },
   "active": "900b4a0753972d55",
   "lastOpenFiles": [
+    "ADR-024 Designed Experiment Calibration.md",
+    "ADR-023 Ground-Truth Input Timeline.md",
+    "ADR-026 Internal-State Observation Boundary.md",
+    "ADR-018 Boot Calibration Public Contract.md",
     "ADR-022 Scroll-Aware Vision Pipeline.md",
     "ADR-021 Enemy Tracking Continuity.md",
     "ADR-020 Projectile In-Flight Tracking.md",
     "ADR-019 Human-Validated Calibration Candidates.md",
     "ADR-017 Map Init Wizard.md",
     "ADR-001 Clean-Room Layered Architecture.md",
-    "ADR-018 Boot Calibration Public Contract.md",
     "ADR-016 RetroArch Autoconfig Importer.md",
     "ADR-015 SDL GameControllerDB Importer.md",
     "ADR-014 Layered Input Mapping.md",

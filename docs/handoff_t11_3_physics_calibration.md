@@ -138,3 +138,23 @@ Values are now in:
 - `apps/rn-prototype/src/engine/PhysicsSystem.ts` (`CALIBRATED_PHYSICS_CONFIG`)
 
 The original T11.3 values (jumpVelocity=1.9966, gravity=5.5071) were trace-noise artifacts caused by the entity-id collision. The T10.7.A values supersede them for all downstream use.
+
+## Documentation continuity update (2026-05-24)
+
+T10.7 continued beyond the jump/gravity correction:
+
+- T10.7.C replaced the noisy locomotion value with `moveSpeed = 0.2786 /s`
+- T10.7.E replaced the surrogate projectile value with
+  `projectile_velocity_x = 0.9303 /s`
+- T10.7 ST5 synced `specs/mechanics/gng_abstract_mechanics.yaml` to
+  `specs/calibration/gng_physics_calibration.yaml` and regenerated
+  `specs/episodes/gng_episodes.json` successfully
+
+Current downstream consumers must treat the original T11.3 public values as
+historical only. The canonical calibration source is now
+`specs/calibration/gng_physics_calibration.yaml`, and the current public
+mechanics surface is `specs/mechanics/gng_abstract_mechanics.yaml`.
+
+This also supersedes the earlier "next task: T11.4" recommendation from the top
+of this handoff. T10.7 remediation and its documentation/test closure remain the
+active sequence before any new RN-scene work is presented as ready.

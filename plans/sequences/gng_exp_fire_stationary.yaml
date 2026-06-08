@@ -1,0 +1,36 @@
+# T20.3 / ADR-024 — isolation experiment: fire stationary (projectile_velocity_x + spawn_delay).
+# Boot prefix reaches frame 1505, settle, single fire, no movement.
+plan_name: gng_exp_fire_stationary
+game_id: gngb
+experiment:
+  experiment_id: fire_stationary
+  isolated_variable: projectile
+  measurement_window:
+    start_frame: 1525
+    end_frame: 1640
+  expected_signal: linear_x
+steps:
+- action: noop
+  frames: 950
+  notes: 'Boot: RAM/ROM check + attract mode.'
+- action: insert_coin
+  frames: 10
+  notes: Insert coin.
+- action: noop
+  frames: 60
+  notes: Wait for 1P start prompt.
+- action: press_start
+  frames: 5
+  notes: Press 1P start.
+- action: noop
+  frames: 480
+  notes: Title transition + stage 1 intro. Controllable at frame 1505.
+- action: noop
+  frames: 20
+  notes: Settle before the isolated action.
+- action: fire
+  frames: 5
+  notes: Single fire press (button2). No movement — projectile motion only.
+- action: noop
+  frames: 140
+  notes: Projectile crosses the screen. Linear x(t) → projectile_velocity_x; fire→spawn delay.

@@ -1,0 +1,36 @@
+# T20.3 / ADR-024 — isolation experiment: walk right (locomotion_velocity_x).
+# Boot prefix reaches frame 1505, settle, then hold right with no other input.
+plan_name: gng_exp_walk_right
+game_id: gngb
+experiment:
+  experiment_id: walk_right
+  isolated_variable: locomotion_velocity_x
+  measurement_window:
+    start_frame: 1535
+    end_frame: 1645
+  expected_signal: monotone_x
+steps:
+- action: noop
+  frames: 950
+  notes: 'Boot: RAM/ROM check + attract mode.'
+- action: insert_coin
+  frames: 10
+  notes: Insert coin.
+- action: noop
+  frames: 60
+  notes: Wait for 1P start prompt.
+- action: press_start
+  frames: 5
+  notes: Press 1P start.
+- action: noop
+  frames: 480
+  notes: Title transition + stage 1 intro. Controllable at frame 1505.
+- action: noop
+  frames: 20
+  notes: Settle before the isolated action.
+- action: move_right
+  frames: 130
+  notes: Hold right. GNG locomotion has no acceleration — constant velocity_x.
+- action: noop
+  frames: 20
+  notes: Release; let motion stop.

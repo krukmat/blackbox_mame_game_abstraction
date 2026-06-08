@@ -1,7 +1,10 @@
 # ADR-019 — Human-Validated Calibration Candidates Pattern
 
 ## Status
-Accepted
+Accepted — **demoted to fallback by [ADR-024](./ADR-024-designed-experiment-calibration.md)**
+(T20.3, 2026-06-07). Designed isolation experiments are now the default calibration method;
+this human-validated picker pattern is retained as the fallback for constants that cannot be
+isolated by a designed experiment and for auditing low-fit experiment results.
 
 ## Date
 2026-05-23

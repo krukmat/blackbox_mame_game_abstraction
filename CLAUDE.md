@@ -6,6 +6,14 @@ This project builds a clean-room black-box game abstraction framework.
 
 It observes a game running in MAME, captures private evidence, infers abstract gameplay mechanics, generates new original asset recipes, and supports an independent React Native implementation.
 
+## Agent Workflow Guide (authoritative for process)
+
+`docs/playbooks/AGENT_WORKFLOW_GUIDE.md` is the authoritative source for agent-facing
+**process** — workflow, task presentation, planning discipline, reasoning/effort grading,
+model selection (Codex + Claude Code), ADR propagation, testing/commit rules, handoff format,
+and language policy. It overrides this file on those process topics; this file applies for any
+topic it does not cover. The clean-room guardrails below are inviolable and are never overridden.
+
 ## Critical Guardrails
 
 Never commit or generate as public output:
@@ -197,6 +205,9 @@ The `docs/adr/` directory contains the authoritative record of significant archi
 | ADR-020 | Cross-frame projectile continuity for in-flight velocity calibration | projectile tracking, projectile picker, projectile calibration output |
 | ADR-021 | Generalized `EntityTracker` with per-type `EntitySignature`; persistent enemy IDs across frames; `ArthurTracker` becomes a wrapper | `packages/vision/entity_tracker.py`, `packages/vision/arthur_tracker.py`, `packages/vision/trace_extractor.py`, `specs/calibration/gng_enemy_signatures.yaml` |
 | ADR-022 | Scroll-aware vision pipeline: `ScrollDetector` + MOG2 reset on scroll end with warmup window; resolves ADR-013 MOG2 scroll-reset Known Gap | `packages/vision/scroll_detector.py`, `packages/vision/frame_differ.py`, `packages/vision/gng_vision_config.py`, `packages/vision/trace_extractor.py` |
+| ADR-023 | Ground-truth input timeline: MAME Lua records effective per-frame input (injected plan OR human) to a private `input_timeline.json`; authoritative source for input-driven events, CV inference demoted to fallback | `scripts/mame_autoboot.lua`, `apps/mame-harness/input_timeline.py`, `packages/schemas/input_timeline.schema.json` |
+| ADR-024 | Designed isolation-experiment calibration: each experiment plan isolates one mechanic (embedded `experiment` block, structurally-enforced isolation) so constants are measured with no human picker; default method, ADR-019 demoted to fallback | `packages/schemas/experiment_plan.schema.json`, `apps/mame-harness/input_planner.py`, `plans/sequences/gng_exp_*.yaml` |
+| ADR-026 | Internal-state (RAM) observation clean-room boundary (**Accepted**, constrained): MAME RAM may be read via Lua using community cheat-DB addresses as a private measurement/verification accelerator only; memory is not the published source of truth (clause 4); public output stays numbers-only | `scripts/mame_autoboot.lua`, `apps/mame-harness/guardrails.py`, memory-tap calibration (T20.5/T20.6) |
 
 ### Known Gaps (consult before implementing)
 
@@ -211,8 +222,8 @@ These are documented limitations in the current implementation. An agent working
 - **ADR-006**: `_read_pgm` only supports P2 (ASCII) PGM. P5 (binary PGM) is not supported. MAME snapshot format compatibility needs verification.
 - **ADR-007**: `suggested_new_theme_variants` are hardcoded identically for every entity. They should be varied.
 - **ADR-008**: State and event strings must match exactly. There is no canonical vocabulary — naming drift between observation and simulation layers causes false mismatches.
-- **ADR-012**: `ArthurSignature` default values are calibrated for GNG at 256×224. A game at a different native resolution requires new values. Crouch/death animations (height < 24 px) produce `None` from `find_arthur` — short trace gaps are accepted.
-- **ADR-013**: MOG2 background model must be reset when the camera scrolls (stage 2+). Stage 1 runs (manual_01, manual_02) are unaffected. Cross-frame enemy ID continuity is not implemented — enemies remain ephemeral per-frame entities.
+- **ADR-012**: `ArthurSignature` default values are calibrated for GNG at 256×224. A game at a different native resolution requires new values. T10.7 added `max_frame_jump_px` to reject implausible player teleports, but crouch/death animations (height < 24 px) can still produce short `None` gaps from `find_arthur`.
+- **ADR-013**: OpenCV + MOG2 is live; the pre-T10.7 noisy jump/gravity calibration narrative is superseded. The active remaining gaps are camera-scroll reset (stage 2+) and missing cross-frame enemy identity continuity until T10.8/T10.9.
 
 ## Documentation and Vault
 

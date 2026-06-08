@@ -49,6 +49,9 @@ This directory is an Obsidian vault for the project. Open `docs/obsidian/` as a 
 - [[ADR-020 Projectile In-Flight Tracking]]
 - [[ADR-021 Enemy Tracking Continuity]]
 - [[ADR-022 Scroll-Aware Vision Pipeline]]
+- [[ADR-023 Ground-Truth Input Timeline]] (Accepted)
+- [[ADR-024 Designed Experiment Calibration]] (Accepted — default; ADR-019 fallback)
+- [[ADR-026 Internal-State Observation Boundary]] (Accepted — constrained)
 
 ## Full ADRs
 

@@ -64,6 +64,11 @@ AVI_PATH="${EVIDENCE_DIR}/video/capture.avi"
 FRAMES_DIR="${EVIDENCE_DIR}/frames"
 LOGS_DIR="${EVIDENCE_DIR}/logs"
 INPUT_PLAN_JSON="${LOGS_DIR}/input_plan.json"
+INPUT_TIMELINE_JSON="${LOGS_DIR}/input_timeline.json"  # T20.1: ground-truth input timeline (ADR-023)
+# T20.5 / ADR-026: optional RAM memory tap. Local YAML address map (gitignored) → private JSON.
+MEMORY_MAP_YAML="${BLACKBOX_MEMORY_MAP_YAML:-${ROOT}/blackbox.local.memory_map.yaml}"
+MEMORY_MAP_JSON="${LOGS_DIR}/memory_map.json"
+STATE_TIMELINE_JSON="${LOGS_DIR}/state_timeline.json"
 DISPLAY_AVI_PATH="${REL_EVIDENCE_ROOT}/run_${RUN_ID}/video/capture.avi"
 
 # --- Setup ---
@@ -108,7 +113,17 @@ echo ""
 echo "  Recording to: ${DISPLAY_AVI_PATH}"
 echo ""
 
-BLACKBOX_INPUT_PLAN_PATH="${INPUT_PLAN_JSON}" \
+# T20.5 / ADR-026: convert the local YAML address map to a private JSON the Lua reads.
+# Absent file = no memory tap (graceful; vision fallback). Addresses stay private.
+export BLACKBOX_INPUT_PLAN_PATH="${INPUT_PLAN_JSON}"
+export BLACKBOX_INPUT_TIMELINE_PATH="${INPUT_TIMELINE_JSON}"
+if [ -f "${MEMORY_MAP_YAML}" ]; then
+  "${VENV}" "${ROOT}/apps/mame-harness/memory_map.py" --yaml "${MEMORY_MAP_YAML}" --json "${MEMORY_MAP_JSON}"
+  export BLACKBOX_MEMORY_MAP_PATH="${MEMORY_MAP_JSON}"
+  export BLACKBOX_STATE_TIMELINE_PATH="${STATE_TIMELINE_JSON}"
+  echo "  RAM memory tap: enabled (state_timeline.json will be written)"
+fi
+
 "${MAME_BINARY}" "${MAME_DRIVER}" \
   -rompath "${ROM_PATH}" \
   -aviwrite "${AVI_PATH}" \

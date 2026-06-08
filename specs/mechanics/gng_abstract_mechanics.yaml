@@ -8,7 +8,7 @@
 
 schema_version: "1.0.0"
 game_profile: gngb
-calibration_status: calibrated  # T11.3: physics constants measured from gng_trace.json
+calibration_status: calibrated  # T10.7.A/C/E: physics constants synced to human-validated calibration outputs
 
 # T10.3 Calibration Evidence:
 # Source: evidence/private/run_9d1153ff6637/video/capture.avi (1075 frames),
@@ -100,11 +100,10 @@ mechanics:
         type: number
         required: true
         unit: abstract
-        calibrated_value: 0.033478
-        calibrated_value_per_second: 1.9966
-        sample_count: 166
+        calibrated_value: 0.007825
+        calibrated_value_per_second: 0.4668
+        sample_count: 2
         calibration_source: specs/calibration/gng_physics_calibration.yaml
-        note: "trace sign inverted vs PhysicsSystem; jumpVelocity = |measured| = 1.9966"
       state:
         type: string
         required: true
@@ -215,9 +214,9 @@ mechanics:
       gravity_units_per_frame:
         type: number
         required: false
-        calibrated_value: 0.092343
-        calibrated_value_per_second: 5.5071
-        sample_count: 277
+        calibrated_value: 0.001956
+        calibrated_value_per_second: 0.1167
+        sample_count: 2
         calibration_source: specs/calibration/gng_physics_calibration.yaml
         note: "positive constant added to velocity_y each airborne frame"
       score_delta:        { type: integer, required: false, default: 0 }
