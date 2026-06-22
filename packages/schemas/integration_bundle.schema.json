@@ -1,0 +1,177 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Integration Bundle",
+  "description": "T30.3 / ADR-028 — Declarative per-game integration bundle. Typed RAM variable map + scenario event definitions + ROM binding + savestate anchor. Private; never committed with real addresses. Model: gym-retro data.json + scenario.json, adapted for clean-room constraints (ADR-026 clause 4).",
+  "type": "object",
+  "required": ["schema_version", "game_id", "mame_driver", "rom_sha256", "cpu_tag", "address_space", "variables", "scenario"],
+  "additionalProperties": false,
+  "properties": {
+
+    "schema_version": {
+      "type": "string",
+      "description": "Semver string for this schema (e.g. '1.0.0')."
+    },
+
+    "game_id": {
+      "type": "string",
+      "description": "Canonical game identifier matching the source profile (e.g. 'gng')."
+    },
+
+    "mame_driver": {
+      "type": "string",
+      "description": "MAME driver name (e.g. 'gngb'). Must match ADR-005 source profile."
+    },
+
+    "rom_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{64}$",
+      "description": "SHA-256 of the ROM zip. Binds this bundle to the specific ROM image used during address discovery."
+    },
+
+    "savestate_path": {
+      "type": "string",
+      "description": "Relative path to the private MAME savestate anchor (e.g. evidence/private/savestates/gng_controllable.sta). Optional — if absent, the boot plan is used instead."
+    },
+
+    "cpu_tag": {
+      "type": "string",
+      "description": "MAME CPU device tag (e.g. ':maincpu').",
+      "default": ":maincpu"
+    },
+
+    "address_space": {
+      "type": "string",
+      "description": "MAME address space name (e.g. 'program').",
+      "default": "program"
+    },
+
+    "variables": {
+      "type": "array",
+      "description": "Typed RAM variable declarations. Each entry names a game quantity and its RAM address. Addresses come exclusively from community cheat databases (ADR-026 clause 1). This array is the private equivalent of gym-retro data.json.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name", "address", "type"],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Logical name for this quantity (e.g. 'player_x', 'player_y', 'player_state', 'score')."
+          },
+          "address": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 65535,
+            "description": "RAM address (0x0000–0xFFFF). Sourced from community cheat DB only — never from ROM disassembly."
+          },
+          "type": {
+            "type": "string",
+            "enum": ["u8", "u16", "s8", "s16"],
+            "description": "Read type: u8/u16 (unsigned), s8/s16 (signed). u16 reads two consecutive bytes little-endian."
+          },
+          "encoding": {
+            "type": "string",
+            "enum": ["binary", "bcd8", "bcd16"],
+            "description": "Value encoding. binary = raw integer. bcd8/bcd16 = Binary Coded Decimal (common for scores).",
+            "default": "binary"
+          },
+          "entity": {
+            "type": "string",
+            "description": "Entity this variable belongs to (e.g. 'player', 'enemy_slot_0'). Matches entity names in scenario.entities."
+          },
+          "axis": {
+            "type": "string",
+            "enum": ["x", "y", "state", "health", "score", "lives", "flags", "other"],
+            "description": "Semantic axis of this variable within its entity."
+          },
+          "source": {
+            "type": "string",
+            "description": "Citation for the address origin (e.g. 'MAME cheat XML gngb 2024-03', 'forum post URL'). Required by ADR-026 clean-room contract."
+          },
+          "notes": {
+            "type": "string",
+            "description": "Optional notes (e.g. 'wraps at 0xFF', 'absolute screen coords 0-255')."
+          }
+        }
+      }
+    },
+
+    "scenario": {
+      "type": "object",
+      "description": "Scenario definition: which entities to track and what events to emit from variable deltas. Equivalent to gym-retro scenario.json.",
+      "required": ["entities", "events"],
+      "additionalProperties": false,
+      "properties": {
+
+        "entities": {
+          "type": "array",
+          "description": "Entity definitions. Each entity groups its variable names.",
+          "items": {
+            "type": "object",
+            "required": ["name", "variables"],
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Entity name (e.g. 'player', 'enemy_slot_0')."
+              },
+              "variables": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "Variable names (must match names in the top-level variables array)."
+              },
+              "active_flag_variable": {
+                "type": "string",
+                "description": "Variable name whose non-zero value indicates this entity slot is active. Used to suppress ghost readings."
+              }
+            }
+          }
+        },
+
+        "events": {
+          "type": "array",
+          "description": "Event definitions. Each event fires when an operation over one or more variable deltas is true.",
+          "items": {
+            "type": "object",
+            "required": ["name", "condition"],
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Event name emitted to the state timeline (e.g. 'player_died', 'level_complete')."
+              },
+              "condition": {
+                "type": "object",
+                "required": ["variable", "op"],
+                "additionalProperties": false,
+                "properties": {
+                  "variable": {
+                    "type": "string",
+                    "description": "Variable name to evaluate."
+                  },
+                  "op": {
+                    "type": "string",
+                    "enum": ["decreased_to_zero", "increased", "decreased", "equals", "not_equals", "changed"],
+                    "description": "Comparison operator applied to the variable delta or current value."
+                  },
+                  "value": {
+                    "type": "integer",
+                    "description": "Literal comparison value (required for 'equals' and 'not_equals' ops)."
+                  }
+                }
+              },
+              "notes": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "notes": {
+      "type": "string",
+      "description": "Free-form notes about this bundle (e.g. calibration session, known limitations)."
+    }
+  }
+}

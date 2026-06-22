@@ -1,0 +1,97 @@
+# T30.3 / ADR-028 — Integration bundle TEMPLATE (committed example, placeholders only).
+#
+# HOW TO USE (clean-room contract, ADR-026):
+#   1. Copy to `blackbox.local.integration_bundle.yaml` (gitignored — never commit).
+#   2. Run address_search.py to discover real addresses via MAME RAM filtering.
+#   3. Fill `address:` fields from community cheat DB (cite source). No ROM disassembly.
+#   4. The harness validates this against integration_bundle.schema.json before use.
+#   5. Real addresses stay private; only derived abstract numbers reach public specs.
+#
+# `address: 0` entries are placeholders — replace before relying on output.
+
+schema_version: "1.0.0"
+game_id: gng
+mame_driver: gngb
+
+# SHA-256 of gng.zip — fill from: sha256sum <rom_dir>/gng.zip
+rom_sha256: "0000000000000000000000000000000000000000000000000000000000000000"
+
+# Private savestate path (optional — used instead of full autoboot when present).
+savestate_path: evidence/private/savestates/gng_controllable.sta
+
+cpu_tag: ":maincpu"
+address_space: program
+
+variables:
+  # Player
+  - name: player_x
+    address: 0        # placeholder — source: MAME cheat XML gngb (replace before use)
+    type: u8
+    encoding: binary
+    entity: player
+    axis: x
+    source: "MAME cheat XML gngb — cite exact source here"
+
+  - name: player_y
+    address: 0        # placeholder
+    type: u8
+    encoding: binary
+    entity: player
+    axis: y
+    source: "MAME cheat XML gngb — cite exact source here"
+
+  - name: player_state
+    address: 0        # placeholder
+    type: u8
+    encoding: binary
+    entity: player
+    axis: state
+    source: "MAME cheat XML gngb — cite exact source here"
+
+  - name: player_lives
+    address: 0        # placeholder
+    type: u8
+    encoding: binary
+    entity: player
+    axis: lives
+    source: "MAME cheat XML gngb — cite exact source here"
+
+  # Score (BCD-encoded in GNG)
+  - name: score
+    address: 0        # placeholder
+    type: u8
+    encoding: bcd8
+    entity: player
+    axis: score
+    source: "MAME cheat XML gngb — cite exact source here"
+
+scenario:
+  entities:
+    - name: player
+      variables:
+        - player_x
+        - player_y
+        - player_state
+        - player_lives
+        - score
+
+  events:
+    - name: player_died
+      condition:
+        variable: player_lives
+        op: decreased
+      notes: "Lives counter decreased — Arthur lost a life."
+
+    - name: player_moved_right
+      condition:
+        variable: player_x
+        op: increased
+      notes: "Player x increased — moving right."
+
+    - name: player_moved_left
+      condition:
+        variable: player_x
+        op: decreased
+      notes: "Player x decreased — moving left."
+
+notes: "GNG integration bundle — Stage 1 player-only scope. Addresses are placeholders; replace from community cheat DB."

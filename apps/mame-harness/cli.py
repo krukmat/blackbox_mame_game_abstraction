@@ -27,6 +27,7 @@ from input_planner import load_input_plan
 from map_init_wizard import run_map_init_wizard
 from mame_runner import MameRunRequest, run_mame
 from memory_map import export_memory_map_json  # T20.5 / ADR-026
+from integration_bundle import load_integration_bundle, export_memory_map_json as export_bundle_memory_map_json  # T30.4 / ADR-028
 from mapping_compiler import compile_mapping_files
 from mapping_profiles import load_mapping_profile
 from metadata_writer import write_public_metadata
@@ -50,6 +51,10 @@ MAME_STATE_TIMELINE_ENV_VAR = "BLACKBOX_STATE_TIMELINE_PATH"  # T20.5 (ADR-026)
 # Operator-facing local YAML address map (gitignored); converted to the private JSON above.
 MEMORY_MAP_YAML_ENV_VAR = "BLACKBOX_MEMORY_MAP_YAML"
 DEFAULT_MEMORY_MAP_YAML = Path("blackbox.local.memory_map.yaml")
+# T30.4 / ADR-028: integration bundle (typed variables + scenario + rom.sha). Takes priority
+# over the legacy memory_map.yaml when present.
+INTEGRATION_BUNDLE_ENV_VAR = "BLACKBOX_INTEGRATION_BUNDLE"
+DEFAULT_INTEGRATION_BUNDLE = Path("blackbox.local.integration_bundle.yaml")
 DEFAULT_BOOTSTRAP_CONFIG_PATH = Path("blackbox.local.yaml")
 DEFAULT_ENV_FILE_PATH = Path(".env")
 DEFAULT_TRACE_OUTPUT_PATH = Path("specs/traces/gng_trace.json")
@@ -228,27 +233,43 @@ def handle_run(args: argparse.Namespace) -> dict[str, object]:
     input_timeline_json_path = capture.logs_dir / "input_timeline.json"
     source_profile = get_source_profile(args.source_profile) if args.source_profile else None
 
-    # T20.5 / ADR-026: optional RAM memory tap. If a local YAML address map is configured
-    # (env var or default file), convert it to a private JSON the Lua reads and enable the
-    # private state timeline. Absent config = no tap (graceful; vision fallback).
+    # T30.4 / ADR-028: RAM memory tap wiring.
+    # Priority: integration bundle (ADR-028) > legacy memory_map.yaml (ADR-026 fallback).
+    # Absent config = no tap (graceful; vision fallback per ADR-028).
     mame_environment = {
         MAME_INPUT_PLAN_ENV_VAR: str(input_plan_json_path.resolve()),
         MAME_INPUT_TIMELINE_ENV_VAR: str(input_timeline_json_path.resolve()),
     }
-    memory_map_yaml_env = os.environ.get(MEMORY_MAP_YAML_ENV_VAR)
-    memory_map_yaml_path = (
-        Path(memory_map_yaml_env)
-        if memory_map_yaml_env
-        else (DEFAULT_MEMORY_MAP_YAML if DEFAULT_MEMORY_MAP_YAML.exists() else None)
+    # 1. Try integration bundle first (ADR-028 default path).
+    bundle_env = os.environ.get(INTEGRATION_BUNDLE_ENV_VAR)
+    bundle_path = (
+        Path(bundle_env) if bundle_env
+        else (DEFAULT_INTEGRATION_BUNDLE if DEFAULT_INTEGRATION_BUNDLE.exists() else None)
     )
-    if memory_map_yaml_path is not None and memory_map_yaml_path.exists():
-        memory_map_json_path = export_memory_map_json(
-            memory_map_yaml_path, capture.logs_dir / "memory_map.json"
+    if bundle_path is not None and bundle_path.exists():
+        bundle = load_integration_bundle(bundle_path)
+        memory_map_json_path = export_bundle_memory_map_json(
+            bundle, capture.logs_dir / "memory_map.json"
         )
         mame_environment[MAME_MEMORY_MAP_ENV_VAR] = str(memory_map_json_path.resolve())
         mame_environment[MAME_STATE_TIMELINE_ENV_VAR] = str(
             (capture.logs_dir / "state_timeline.json").resolve()
         )
+    else:
+        # 2. Fallback: legacy memory_map.yaml (ADR-026 / T20.5).
+        memory_map_yaml_env = os.environ.get(MEMORY_MAP_YAML_ENV_VAR)
+        memory_map_yaml_path = (
+            Path(memory_map_yaml_env) if memory_map_yaml_env
+            else (DEFAULT_MEMORY_MAP_YAML if DEFAULT_MEMORY_MAP_YAML.exists() else None)
+        )
+        if memory_map_yaml_path is not None and memory_map_yaml_path.exists():
+            memory_map_json_path = export_memory_map_json(
+                memory_map_yaml_path, capture.logs_dir / "memory_map.json"
+            )
+            mame_environment[MAME_MEMORY_MAP_ENV_VAR] = str(memory_map_json_path.resolve())
+            mame_environment[MAME_STATE_TIMELINE_ENV_VAR] = str(
+                (capture.logs_dir / "state_timeline.json").resolve()
+            )
 
     request = MameRunRequest(
         game_shortname=args.rom,

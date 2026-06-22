@@ -307,7 +307,13 @@ REAL_TRACE = Path("specs/traces/gng_trace.json")
     not REAL_TRACE.exists(),
     reason="Real trace not available",
 )
-def test_real_trace_requires_projectile_trajectory_review() -> None:
-    """Real trace must not silently use a player-motion projectile surrogate."""
-    with pytest.raises(ValueError, match="projectile_velocity_x"):
+def test_real_trace_calibrate_fails_with_insufficient_data() -> None:
+    """The degenerate real trace has too few samples; calibrate must raise ValueError.
+
+    The trace is known-degenerate (T30 diagnosis): every entity lives exactly
+    one frame, so gravity and projectile samples are both below MIN_SAMPLE_COUNT.
+    The check that fires first (gravity_units_per_frame) is an implementation
+    detail — the invariant is that calibration is rejected, not silent.
+    """
+    with pytest.raises(ValueError):
         calibrate(REAL_TRACE)

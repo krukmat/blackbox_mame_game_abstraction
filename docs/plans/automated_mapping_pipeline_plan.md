@@ -4,6 +4,14 @@
 
 Proposed — awaiting approval. Created 2026-06-07.
 
+> **Partially superseded by ADR-028 (2026-06-18).** Levels 0–1 (T20.1–T20.4b, input timeline +
+> isolation experiments) and the memory tap (T20.5, ADR-026) are retained and absorbed into the
+> memory-mapping-first re-architecture (`docs/plans/memory_mapping_first_rearchitecture_plan.md`).
+> Tasks **T20.7, T20.8, T20.9, T20.10** and the unauthored reservations **ADR-025** and
+> **ADR-027** are **Deprecated** — their goals (scroll robustness, entity identity,
+> generalization) are met by the memory-mapping + declarative-bundle design and may be revisited
+> only as fallback hardening after the player-only vertical slice is verified.
+
 ## Purpose
 
 Re-architect the "mapping" process (MAME observation → public abstract mechanics)
@@ -106,9 +114,9 @@ documented before its implementation begins. ADR numbers continue after the curr
 |-----|----------|-------------|
 | ADR-023 | Ground-truth input timeline supersedes CV event inference (CV is fallback) | T20.1 |
 | ADR-024 | Designed isolation-experiment calibration; ADR-019 demoted to fallback | T20.3 |
-| ADR-025 | Optical-flow scroll compensation + tracking-by-detection vision backend | T20.7 |
+| ADR-025 | DEPRECATED by ADR-028 (never authored) — Optical-flow scroll compensation + tracking-by-detection vision backend | T20.7 |
 | ADR-026 | Internal-state (RAM) observation clean-room boundary — **decision gate** | T20.0 |
-| ADR-027 | VLM-assisted archetype/mechanic labeling with bulk human confirmation | T20.9 |
+| ADR-027 | DEPRECATED by ADR-028 (never authored) — VLM-assisted archetype/mechanic labeling with bulk human confirmation | T20.9 |
 
 Each ADR task must also update the ADR Index in `CLAUDE.md` and `AGENTS.md`, add an Obsidian
 note, update `docs/obsidian/README.md` and `docs/obsidian/00 - Project Overview.md`, and
@@ -126,10 +134,10 @@ remove any Known Gap it resolves.
 | T20.4b | Battery orchestrator + fail-fast validation + robust windows (minimize manual, no retries) | T20.3, T20.4 | High | Medium | Opus |
 | T20.5 | Lua memory-tap → private numeric state timeline (ADR-026 impl) | T20.0=Accepted | High | Medium | Opus |
 | T20.6 | Memory-sourced calibration + RAM↔CV cross-check (plugs into T20.4b verdict) | T20.5, T20.4b | Medium | Medium | Sonnet |
-| T20.7 | Optical-flow scroll estimation + compensation (ADR-025 pt.1) | T20.0 | High | Medium | Opus |
-| T20.8 | Generic motion segmentation + tracking-by-detection (ADR-025 pt.2) | T20.7 | High | High | Opus |
-| T20.9 | VLM-assisted archetype + mechanic labeling (ADR-027) | T20.2, T20.4 | High | Medium | Opus |
-| T20.10 | Declarative per-game mapping profile | T20.3, T20.4, T20.9 | High | Medium | Opus |
+| T20.7 | DEPRECATED (ADR-028) — Optical-flow scroll estimation + compensation (ADR-025 pt.1) | T20.0 | High | Medium | Opus |
+| T20.8 | DEPRECATED (ADR-028) — Generic motion segmentation + tracking-by-detection (ADR-025 pt.2) | T20.7 | High | High | Opus |
+| T20.9 | DEPRECATED (ADR-028) — VLM-assisted archetype + mechanic labeling (ADR-027) | T20.2, T20.4 | High | Medium | Opus |
+| T20.10 | DEPRECATED (ADR-028; folded into the integration bundle) — Declarative per-game mapping profile | T20.3, T20.4, T20.9 | High | Medium | Opus |
 | T20.11 | End-to-end clean-room + reproducibility verification | all | Medium | Medium | Sonnet |
 
 ## Dependency Rationale

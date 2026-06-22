@@ -7,6 +7,9 @@ blackbox.local.yaml
 # T20.5 / ADR-026 — local RAM address map (real addresses; never commit). Only the
 # blackbox.local.memory_map.example.yaml template is tracked.
 blackbox.local.memory_map.yaml
+# T30.3 / ADR-028 — local integration bundle (real addresses; never commit). Only the
+# blackbox.local.integration_bundle.example.yaml template is tracked.
+blackbox.local.integration_bundle.yaml
 *.pyc
 node_modules/
 

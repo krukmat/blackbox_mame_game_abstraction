@@ -52,6 +52,11 @@ This directory is an Obsidian vault for the project. Open `docs/obsidian/` as a 
 - [[ADR-023 Ground-Truth Input Timeline]] (Accepted)
 - [[ADR-024 Designed Experiment Calibration]] (Accepted — default; ADR-019 fallback)
 - [[ADR-026 Internal-State Observation Boundary]] (Accepted — constrained)
+- [[ADR-028 Memory-Mapping-First Integration]] (Accepted — memory tap default; CV fallback)
+
+## Plans and Processes
+
+- [[OKF Adoption Plan]] — Migration plan for adopting Google Cloud's Open Knowledge Format across project docs.
 
 ## Full ADRs
 

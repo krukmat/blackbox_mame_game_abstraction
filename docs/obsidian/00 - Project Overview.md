@@ -95,6 +95,7 @@ evidence/private/    Private evidence (gitignored)
 | [[ADR-023 Ground-Truth Input Timeline]] | MAME Lua records the effective per-frame input (injected plan OR human keyboard) to a private `input_timeline.json`; authoritative source for input-driven events; CV event inference demoted to fallback |
 | [[ADR-024 Designed Experiment Calibration]] | Designed isolation experiments (one mechanic each; structurally-enforced isolation window) calibrate constants with no human picker; default method; ADR-019 pickers demoted to fallback |
 | [[ADR-026 Internal-State Observation Boundary]] | Accepted (constrained): MAME RAM may be read via Lua (community cheat-DB addresses) as a private measurement/verification accelerator only — memory is not the published source of truth (clause 4); public output stays numbers-only; formalizes/revisits ADR-022's informal rejection of Lua introspection |
+| [[ADR-028 Memory-Mapping-First Integration]] | Memory tap becomes the default position/state source; CV demoted to fallback; declarative integration bundle + guided address search; deprecates the unauthored vision rewrite |
 
 ## Current Phase
 
